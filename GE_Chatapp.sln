@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GE_Chatapp", "GE_Chatapp\GE_Chatapp\GE_Chatapp.csproj", "{3125BBFD-A343-4613-BDA2-4CCBECCC8BF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GE_Chatapp.Client", "GE_Chatapp\GE_Chatapp.Client\GE_Chatapp.Client.csproj", "{00A8E4D7-8A69-402A-8B00-D335EAB5A1FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3125BBFD-A343-4613-BDA2-4CCBECCC8BF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3125BBFD-A343-4613-BDA2-4CCBECCC8BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3125BBFD-A343-4613-BDA2-4CCBECCC8BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3125BBFD-A343-4613-BDA2-4CCBECCC8BF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00A8E4D7-8A69-402A-8B00-D335EAB5A1FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00A8E4D7-8A69-402A-8B00-D335EAB5A1FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00A8E4D7-8A69-402A-8B00-D335EAB5A1FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00A8E4D7-8A69-402A-8B00-D335EAB5A1FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B1A0A38-7E2B-4505-88D9-D608301A4B44}
+	EndGlobalSection
+EndGlobal
