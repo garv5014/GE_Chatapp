@@ -1,0 +1,25 @@
+﻿@page "/chat"
+
+<!-- 
+    have a box for the chats to live 
+        chat bubbles have the message with the username and timestamp above the bubble
+    under the box is the form entry for the chat
+    the form entry has a button to submit the chat
+
+-->
+
+
+
+@code {
+    public class User
+    {
+        public string Username { get; set; }
+        public List<Message> Messages { get; set; }
+    }
+
+    public class Message
+    {
+        public string Text { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+}

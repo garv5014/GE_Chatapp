@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  ge_chatapp:
+    image: ${DOCKER_REGISTRY-}gechatapp
+    build:
+      context: .
+      dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
