@@ -9,6 +9,7 @@ services:
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
     ports: 
       - 8080:8080
+      - 80801:8081
        
   postgres:
     image: postgres:latest

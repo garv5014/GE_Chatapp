@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Chatapp.Shared\Chatapp.Shared.csproj" />
     <ProjectReference Include="..\GE_Chatapp.Client\GE_Chatapp.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
