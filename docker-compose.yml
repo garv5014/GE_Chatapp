@@ -3,6 +3,7 @@ version: '3.4'
 services:
   ge_chatapp:
     image: ${DOCKER_REGISTRY-}gechatapp
+    container_name: ge_chatapp
     build:
       context: .
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
@@ -21,3 +22,5 @@ services:
     volumes:
       - chat_db_data:/var/lib/postgresql/data
       - ../chatdb/init-scripts:/docker-entrypoint-initdb.d
+volumes:
+  chat_db_data:
