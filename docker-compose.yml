@@ -14,7 +14,7 @@ services:
   
   postgres:
     image: postgres:latest
-    container_name: chat_app_db
+    container_name: chatappdb
     ports:
       - "5432:5432"
     environment:
@@ -23,6 +23,6 @@ services:
       POSTGRES_PASSWORD: password!
     volumes:
       - chat_db_data:/var/lib/postgresql/data
-      - ../chatdb/init-scripts:/docker-entrypoint-initdb.d
+      - ./chatdb/initscripts:/docker-entrypoint-initdb.d
 volumes:
   chat_db_data:
