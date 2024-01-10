@@ -1,4 +1,4 @@
-﻿namespace ClassLibrary1
+﻿namespace Chatapp.Shared
 {
   public class Class1
   {
