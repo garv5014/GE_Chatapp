@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unit_Test", "Unit_Test\Unit
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5BC42988-E2A0-446D-84A2-D5FD8215AD72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatapp.Shared", "..\Chatapp.Shared\Chatapp.Shared.csproj", "{62490AEB-FA9C-4D4A-9218-2F53FB51D184}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "ClassLibrary1\ClassLibrary1.csproj", "{E176734C-95C6-4F91-AC42-0B432570C172}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,14 +58,14 @@ Global
 		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Release|x64.ActiveCfg = Release|Any CPU
 		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Release|x64.Build.0 = Release|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Debug|x64.Build.0 = Debug|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Release|x64.ActiveCfg = Release|Any CPU
-		{62490AEB-FA9C-4D4A-9218-2F53FB51D184}.Release|x64.Build.0 = Release|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Debug|x64.Build.0 = Debug|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Release|x64.ActiveCfg = Release|Any CPU
+		{E176734C-95C6-4F91-AC42-0B432570C172}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
