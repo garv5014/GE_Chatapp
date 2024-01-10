@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:latest
-    container_name: nutrinova-db
+    container_name: chat-db
     ports:
       - "5432:5432"
     environment:
@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - /home/garrett/nutrinovadata/data:/var/lib/postgresql/data
+      - /home/garrett/chatdata/data:/var/lib/postgresql/data
       - ../chatdb/init-scripts:/docker-entrypoint-initdb.d
     restart: always
 
@@ -19,10 +19,8 @@ services:
     container_name: chat-api
     build:
       context: ../GE_Chatapp
-      dockerfile: Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
-      - USDA_API_KEY=${USDA_API_KEY}
     restart: always
 
   swag:
@@ -38,7 +36,7 @@ services:
       - DUCKDNSTOKEN=${DUCKDNSTOKEN}
       - STAGING=false
     volumes:
-      - /home/nutrinova/data/swag:/config
+      - /home/garrett/data/swag:/config
       - ./swag-default.conf:/config/nginx/site-confs/default.conf
     ports:
       - 0.0.0.0:1360:443

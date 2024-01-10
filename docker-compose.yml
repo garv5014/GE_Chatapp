@@ -10,7 +10,10 @@ services:
     ports: 
       - 8080:8080
       - 80801:8081
-       
+    environment:
+      - DOTNET_URLS=http://+:5000 # by default Dotnet only listens to requests coming from 'localhost' from within the container, adding this will listen outside
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+  
   postgres:
     image: postgres:latest
     container_name: chat_app_db
