@@ -1,7 +1,11 @@
 using System.Text.Json.Serialization;
 
+using Chatapp.Shared;
+
 using GE_Chatapp.Client.Pages;
 using GE_Chatapp.Components;
+
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +19,12 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddDbContext<ChatDbContext>(options =>
-//options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ChatDbContext>(options =>
+{
+  options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+  options.EnableDetailedErrors();
+  options.EnableSensitiveDataLogging();
+});
 
 var app = builder.Build();
 

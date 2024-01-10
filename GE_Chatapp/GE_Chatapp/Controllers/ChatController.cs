@@ -6,4 +6,5 @@ namespace GE_Chatapp.Controllers;
 [ApiController]
 public class ChatController : ControllerBase
 {
+
 }
