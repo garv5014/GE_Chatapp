@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GE_Chatapp", "GE_Chatapp\GE_Chatapp\GE_Chatapp.csproj", "{3125BBFD-A343-4613-BDA2-4CCBECCC8BF6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GE_Chatapp.Client", "GE_Chatapp\GE_Chatapp.Client\GE_Chatapp.Client.csproj", "{00A8E4D7-8A69-402A-8B00-D335EAB5A1FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FEDB8729-EEBB-4354-80AE-D69891A812AB} = {FEDB8729-EEBB-4354-80AE-D69891A812AB}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{939D08BC-51F4-4650-BE1E-6AD54731C48C}"
 	ProjectSection(SolutionItems) = preProject
