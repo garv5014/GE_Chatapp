@@ -8,7 +8,6 @@
 
 <h1>Chat Room</h1>
 
-<ul class="list-unstyled">
     @if (messages == null)
     {
         <p>No Messages Yet</p>
@@ -16,13 +15,14 @@
 else
 
 {
+<ul class="list-unstyled">
         @foreach (var message in messages)
         {
-            <p class="m-0 fs-6">@message.CreatedAt.ToShortTimeString()</p>
+            <li class="m-0 fs-6">@message.CreatedAt.ToShortTimeString()</li>
             <li class="border border-2 rounded-3 p-2 mb-3">@message.Username: @message.MessageText</li>
         }
-    }
 </ul>
+    }
 
 <div>
     <input type="text" @bind="UserName" placeholder="Your name" />
@@ -33,7 +33,7 @@ else
 @code {
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
-    List<Message> messages { get; set; }
+    List<Message> messages { get; set; } = new List<Message>();
 
     protected override async Task OnInitializedAsync()
     {
