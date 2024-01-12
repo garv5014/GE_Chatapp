@@ -9,5 +9,4 @@ public partial class Message
   public string Username { get; set; } = null!;
 
   public DateTime CreatedAt { get; set; }
-
 }
