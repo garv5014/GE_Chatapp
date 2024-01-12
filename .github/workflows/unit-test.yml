@@ -15,5 +15,5 @@ jobs:
 
         - name: Run Tests in Docker
           run: |
-              pwd
+              docker exec pwd
               docker run -t --rm chat_tests dotnet test ../Unit_Test --verbosity normal
