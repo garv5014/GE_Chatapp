@@ -1,9 +1,0 @@
-name: Run Unit Tests
-on: [push]
-
-jobs: 
-    format: 
-        uses: ./.github/workflows/format.yml
-    
-    unit-tests:
-        uses: ./.github/workflows/unit-test.yml
