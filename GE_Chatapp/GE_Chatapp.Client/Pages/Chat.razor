@@ -40,9 +40,9 @@
 
 
 @code {
-  public string Message { get; set; } = "";
-  public string UserName { get; set; } = "";
-  List<Message> messages { get; set; }
+    public string Message { get; set; } = "";
+    public string UserName { get; set; } = "";
+    List<Message> messages { get; set; } = new List<Message>();
 
   protected override async Task OnInitializedAsync()
   {

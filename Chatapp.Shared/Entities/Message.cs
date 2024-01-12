@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Chatapp.Shared.Entities;
+﻿namespace Chatapp.Shared.Entities;
 
 public partial class Message
 {
-    public int Id { get; set; }
+  public int Id { get; set; }
 
-    public string MessageText { get; set; } = null!;
+  public string MessageText { get; set; } = null!;
 
-    public string Username { get; set; } = null!;
+  public string Username { get; set; } = null!;
 
-    public DateTime CreatedAt { get; set; }
+  public DateTime CreatedAt { get; set; }
 }
