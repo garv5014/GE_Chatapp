@@ -28,5 +28,5 @@ jobs:
           
           - name: Restore dependencies and Run tests
             run: |
-              cd Unit_Test/
-              dotnet test
+              docker build -t chat_tests -f Dockerfile .
+              docker run -i --rm chat_tests dotnet test
