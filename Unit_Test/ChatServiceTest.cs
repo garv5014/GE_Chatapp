@@ -10,9 +10,9 @@ namespace Chatapp.Tests
 {
   public class ChatServiceTests
   {
-    private Mock<HttpMessageHandler> _mockHttpMessageHandler;
-    private HttpClient _mockHttpClient;
-    private ChatService _chatService;
+    private Mock<HttpMessageHandler>? _mockHttpMessageHandler;
+    private HttpClient? _mockHttpClient;
+    private ChatService? _chatService;
 
     [SetUp]
     public void Setup()
@@ -44,7 +44,7 @@ namespace Chatapp.Tests
 
       Assert.IsNotNull(result);
       Assert.That(result, Has.Count.EqualTo(1));
-      Assert.AreEqual("Test Message", result[0].MessageText);
+      Assert.That(result[0].MessageText, Is.EqualTo("Test Message"));
 
       // Verify that the GetAsync method was called only once
       _mockHttpMessageHandler.Protected().Verify(
