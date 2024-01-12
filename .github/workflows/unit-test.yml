@@ -8,9 +8,15 @@ jobs:
         runs-on: self-hosted
         steps:
         - name: Checkout code
-          uses: actions/checkout@v3
+          uses: actions/checkout@v2
 
-        - name: Restore dependencies and run tests
-          run: |
-            docker build -t chat_tests -f ./Unit_Test/Dockerfile .
-            docker run -i --rm chat_tests dotnet test
+        - name: Build Docker Image
+          run: docker build -t chat_tests -f ./Unit_Test/Dockerfile .
+
+        - name: Run Tests in Docker
+          run: docker run --name chat_tests_container chat_tests dotnet test
+          # This step will fail the workflow if `dotnet test` returns a non-zero exit code
+
+        - name: Cleanup Docker Container
+          if: always() # This ensures the cleanup step runs whether the previous step passes or fails
+          run: docker rm -f chat_tests_container || true
