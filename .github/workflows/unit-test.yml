@@ -7,15 +7,10 @@ jobs:
     unit-tests:
         runs-on: self-hosted
         steps:
-          - name: Checkout code
-            uses: actions/checkout@v3
+        - name: Checkout code
+          uses: actions/checkout@v3
 
-          - name: Setup Dotnet
-            uses: actions/setup-dotnet@v2
-            with:
-              dotnet-version: "8.0"
-          
-          - name: Restore dependencies and Run tests
-            run: |
-              cd Unit_Test/
-              dotnet test    
+        - name: Restore dependencies and run tests
+          run: |
+            docker build -t chat_tests -f Dockerfile .
+            docker run -i --rm chat_tests dotnet test
