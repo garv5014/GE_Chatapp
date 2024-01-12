@@ -6,7 +6,6 @@
 @using Chatapp.Shared.Services
 @using Chatapp.Shared.Entities
 
-<!--
 <h1>Chat Room</h1>
 
 <ul class="list-unstyled">
@@ -19,8 +18,8 @@ else
 {
         @foreach (var message in messages)
         {
-            <p class="m-0 fs-6">@message.?.ToShortTimeString()</p>
-            <li class="border border-2 rounded-3 p-2 mb-3">@message.: @message.Text</li>
+            <p class="m-0 fs-6">@message.CreatedAt.ToShortTimeString()</p>
+            <li class="border border-2 rounded-3 p-2 mb-3">@message.Username: @message.MessageText</li>
         }
     }
 </ul>
@@ -34,7 +33,7 @@ else
 @code {
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
-    List<ChatMessage> messages { get; set; }
+    List<Message> messages { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,7 +47,7 @@ else
         Console.WriteLine("Sending message");
         if (!string.IsNullOrWhiteSpace(Message) && !string.IsNullOrWhiteSpace(UserName))
         {
-            var chatMessage = new ChatMessage { ext = Message, User = UserName, ChatTimestamps = DateTime.Now };
+            var chatMessage = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now };
             await ChatService.SendMessageAsync(chatMessage);
             Message = ""; // Clear the message field after sending
             await OnInitializedAsync();
@@ -56,5 +55,3 @@ else
     }
 
 }
-
---> 
