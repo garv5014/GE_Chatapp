@@ -15,4 +15,4 @@ jobs:
 
         - name: Run Tests in Docker
           run: |
-              docker run -i --rm chat_tests ls
+              docker run -i --rm chat_tests dotnet test
