@@ -1,0 +1,66 @@
+﻿@page "/chat"
+@inject IChatService ChatService
+@rendermode InteractiveWebAssembly
+@using Chatapp.Shared
+@using Chatapp.Shared.Interfaces
+@using Chatapp.Shared.Services
+@using Chatapp.Shared.Entities
+
+<h1>Chat Room</h1>
+
+<div class="d-flex flex-column" style="height: 500px">
+  <div class="overflow-scroll" style="height: 90%">
+    <ul class="list-unstyled">
+      @if (messages == null)
+      {
+        <p>No Messages Yet</p>
+      }
+      else
+      {
+        @foreach (var message in messages)
+        {
+          <li class="w-25">
+            <div class="row">
+              <p class="col-auto my-0 fs-6 fw-bold">@message.Username</p>
+              <p class="col-auto my-0 fs-6">@message.CreatedAt.ToShortTimeString()</p>
+            </div>
+            <p class="border border-2 rounded-3 p-2 mb-3">@message.MessageText</p>
+          </li>
+        }
+      }
+    </ul>
+  </div>
+
+  <div class='text-center'>
+    <input type="text" @bind="UserName" placeholder="Your name" />
+    <input type="text" @bind="Message" placeholder="Type a message" />
+    <button @onclick=@(() => SendMessage() )>Send</button>
+  </div>
+</div>
+
+
+@code {
+    public string Message { get; set; } = "";
+    public string UserName { get; set; } = "";
+    List<Message> messages { get; set; } = new List<Message>();
+
+  protected override async Task OnInitializedAsync()
+  {
+    Console.WriteLine("Initializing chat");
+    messages = await ChatService.GetMessagesAsync();
+    Console.WriteLine("here are the messages", messages);
+  }
+
+  public async Task SendMessage()
+  {
+    Console.WriteLine("Sending message");
+    if (!string.IsNullOrWhiteSpace(Message) && !string.IsNullOrWhiteSpace(UserName))
+    {
+      var chatMessage = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now };
+      await ChatService.SendMessageAsync(chatMessage);
+      Message = ""; // Clear the message field after sending
+      await OnInitializedAsync();
+    }
+  }
+
+}

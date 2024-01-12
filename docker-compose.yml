@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  ge_chatapp:
+    image: ${DOCKER_REGISTRY-}gechatapp
+    container_name: ge_chatapp
+    build:
+      context: .
+      dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+  
+  postgres:
+    image: postgres:latest
+    container_name: chatappdb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: chatdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password!
+    volumes:
+      - chat_db_data:/var/lib/postgresql/data
+      - ./chatdb/initscripts:/docker-entrypoint-initdb.d
+volumes:
+  chat_db_data:

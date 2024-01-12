@@ -1,0 +1,18 @@
+name: Dotnet Tests
+
+on:
+  workflow_dispatch:
+  workflow_call:
+jobs:
+    unit-tests:
+        runs-on: self-hosted
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Build Docker Image
+          run: docker build -t chat_tests -f ./Unit_Test/Dockerfile .
+
+        - name: Run Tests in Docker
+          run: |
+              docker run -t --rm chat_tests ls && dotnet test ../Unit_Test
