@@ -16,7 +16,6 @@ jobs:
             run: dotnet format ./GE_Chatapp.sln --verify-no-changes --verbosity diagnostic
 
     unit-tests:
-        needs: dotnet-format
         runs-on: self-hosted
         steps:
           - name: Checkout code
