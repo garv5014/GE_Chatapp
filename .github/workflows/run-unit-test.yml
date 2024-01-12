@@ -11,7 +11,7 @@ jobs:
             with:
              dotnet-version: 8.0.x
           - name: Restore dependencies
-            run: dotnet restore
+            run: dotnet restore ./GE_Chatapp.sln 
           - name: Format
             run: dotnet format ./GE_Chatapp.sln --verify-no-changes --verbosity diagnostic
 
