@@ -1,9 +1,9 @@
-﻿using Chatapp.Shared.Simple_Models;
+﻿using Chatapp.Shared.Entities;
 
 namespace Chatapp.Shared.Interfaces;
 
 public interface IChatService
 {
-  Task<List<ChatMessage>> GetMessagesAsync();
-  Task SendMessageAsync(ChatMessage message);
+  Task<List<Message>> GetMessagesAsync();
+  Task SendMessageAsync(Message message);
 }

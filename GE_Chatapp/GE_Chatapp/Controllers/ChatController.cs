@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Chatapp.Shared;
+using Chatapp.Shared.Entities;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace GE_Chatapp.Controllers;
 
@@ -6,28 +9,26 @@ namespace GE_Chatapp.Controllers;
 [ApiController]
 public class ChatController : ControllerBase
 {
-  public List<Message> Messages { get; set; } = new List<Message>();
-  public ChatController()
-  {
+  private readonly ChatDbContext _chatDb;
 
+  public List<Message> Messages { get; set; } = new List<Message>();
+
+  public ChatController(ChatDbContext chatDb)
+  {
+    _chatDb = chatDb;
   }
 
-  [HttpPut]
-  public void Put(Message message)
+  [HttpPost]
+  public async Task<ActionResult> AddNewMessage([FromBody] Message message)
   {
-    Messages.Add(message);
+    await _chatDb.Messages.AddAsync(message);
+    return Ok();
   }
 
   [HttpGet]
-  public List<Message> Get()
+  public async Task<ActionResult<List<Message>>> RetrieveAllMessages()
   {
-    return Messages.OrderBy(m => m.Timestamp).ToList();
+    Messages.OrderBy(m => m.CreatedAt).ToList();
+    return Messages;
   }
-}
-
-public class Message
-{
-  public string Text { get; set; }
-  public string User { get; set; }
-  public DateTime Timestamp { get; set; }
 }

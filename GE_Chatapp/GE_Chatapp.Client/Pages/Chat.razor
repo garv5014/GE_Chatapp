@@ -1,46 +1,60 @@
 ﻿@page "/chat"
 @inject IChatService ChatService
+@rendermode InteractiveWebAssembly
 @using Chatapp.Shared
 @using Chatapp.Shared.Interfaces
 @using Chatapp.Shared.Services
-@using Chatapp.Shared.Simple_Models
+@using Chatapp.Shared.Entities
 
+<!--
 <h1>Chat Room</h1>
 
 <ul class="list-unstyled">
-    @foreach (var message in messages)
+    @if (messages == null)
     {
-        <p class="m-0 fs-6">@message.Timestamp.ToShortTimeString()</p>
-        <li class="border border-2 rounded-3 p-2 mb-3">@message.User: @message.Text</li>
+        <p>No Messages Yet</p>
+    }
+else
+
+{
+        @foreach (var message in messages)
+        {
+            <p class="m-0 fs-6">@message.?.ToShortTimeString()</p>
+            <li class="border border-2 rounded-3 p-2 mb-3">@message.: @message.Text</li>
+        }
     }
 </ul>
 
 <div>
     <input type="text" @bind="UserName" placeholder="Your name" />
     <input type="text" @bind="Message" placeholder="Type a message" />
-    <button @onclick="SendMessage">Send</button>
+    <button @onclick=@(() => SendMessage() )>Send</button>
 </div>
 
 @code {
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
+    List<ChatMessage> messages { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Initializing chat");
         messages = await ChatService.GetMessagesAsync();
+        Console.WriteLine("here are the messages", messages);
     }
 
     public async Task SendMessage()
     {
+        Console.WriteLine("Sending message");
         if (!string.IsNullOrWhiteSpace(Message) && !string.IsNullOrWhiteSpace(UserName))
         {
-            var chatMessage = new ChatMessage { Text = Message, User = UserName, Timestamp = DateTime.Now };
-            messages.Add(chatMessage);
+            var chatMessage = new ChatMessage { ext = Message, User = UserName, ChatTimestamps = DateTime.Now };
             await ChatService.SendMessageAsync(chatMessage);
             Message = ""; // Clear the message field after sending
             await OnInitializedAsync();
         }
     }
 
-    List<ChatMessage> messages = new List<ChatMessage>();
 }
+
+--> 

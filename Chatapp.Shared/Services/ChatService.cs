@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 
+using Chatapp.Shared.Entities;
 using Chatapp.Shared.Interfaces;
-using Chatapp.Shared.Simple_Models;
 
 namespace Chatapp.Shared.Services;
 public class ChatService : IChatService
@@ -13,12 +13,13 @@ public class ChatService : IChatService
     _httpClient = httpClient;
   }
 
-  public async Task<List<ChatMessage>> GetMessagesAsync()
+  public async Task<List<Message>> GetMessagesAsync()
   {
-    return await _httpClient.GetFromJsonAsync<List<ChatMessage>>("api/chat");
+    Console.WriteLine("GetMessagesAsync", _httpClient.BaseAddress);
+    return await _httpClient.GetFromJsonAsync<List<Message>>("api/chat");
   }
 
-  public async Task SendMessageAsync(ChatMessage message)
+  public async Task SendMessageAsync(Message message)
   {
     await _httpClient.PostAsJsonAsync("api/chat", message);
   }
