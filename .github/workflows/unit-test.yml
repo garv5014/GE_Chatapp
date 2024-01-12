@@ -14,7 +14,7 @@ jobs:
           run: docker build -t chat_tests -f ./Unit_Test/Dockerfile .
         - name: Run Tests in Docker
           run: |
-            docker run --name chat_tests_container chat_tests dotnet test
+            docker run --name chat_tests_container chat_tests dotnet test ./Unit_Test
             exit_code=$?
             echo "Test exit code: $exit_code"
             exit $exit_code
