@@ -13,7 +13,7 @@ jobs:
             with:
               dotnet-version: "8.0"
           - name: Format
-            run: dotnet format --verify-no-changes --verbosity diagnostic
+            run: dotnet format ./GE_Chatapp.sln --verify-no-changes --verbosity diagnostic
 
     unit-tests:
         needs: dotnet-format
