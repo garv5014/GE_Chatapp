@@ -8,7 +8,6 @@ using Moq.Protected;
 
 namespace Chatapp.Tests
 {
-  [TestFixture]
   public class ChatServiceTests
   {
     private Mock<HttpMessageHandler> _mockHttpMessageHandler;
