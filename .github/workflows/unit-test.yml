@@ -14,4 +14,4 @@ jobs:
           run: docker build -t chat_tests -f ./Unit_Test/Dockerfile .
 
         - name: Run Tests in Docker
-          run: docker run --rm chat_tests 'dotnet test ./Unit_Test/Unit_Test.csproj'
+          run: docker run --rm chat_tests 'dotnet test ./Unit_Test/Unit_Test.csproj' --verbosity normal
