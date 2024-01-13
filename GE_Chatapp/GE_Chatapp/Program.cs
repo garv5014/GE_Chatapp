@@ -63,4 +63,5 @@ app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(Counter).Assembly);
 
 app.MapControllers();
+
 app.Run();
