@@ -15,7 +15,7 @@ public class ChatService : IChatService
 
   public async Task<List<Message>> GetMessagesAsync()
   {
-    Console.WriteLine("GetMessagesAsync", _httpClient.BaseAddress);
+    Console.WriteLine($" \n\nGetMessagesAsync {_httpClient.BaseAddress} \n\n");
     return await _httpClient.GetFromJsonAsync<List<Message>>("api/chat") ?? [];
   }
 
