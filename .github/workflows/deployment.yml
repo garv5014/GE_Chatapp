@@ -1,0 +1,32 @@
+name: Run Unit Tests
+on: [push]
+env:
+  DUCKDNSTOKEN: ${{ secrets.DUCKDNSTOKEN }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  
+jobs: 
+    format: 
+        uses: ./.github/workflows/format.yml
+    
+    unit-tests:
+        uses: ./.github/workflows/unit-test.yml
+
+    deploy:
+    needs: unit-tests
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - name: redeploy application
+        run: |
+          cd ops/deployment
+          docker compose pull
+          docker compose build
+          docker compose up -d
