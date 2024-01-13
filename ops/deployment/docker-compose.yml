@@ -18,7 +18,7 @@ services:
   chatapp:
     container_name: GE_chatapp
     build:
-      context: ../GE_Chatapp
+      context: ../../GE_Chatapp
       dockerfile: GE_Chatapp/Dockerfile
 
     environment:
