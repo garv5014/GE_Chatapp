@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - /home/garrett/chatdata/data:/var/lib/postgresql/data
-      - ../chatdb/initscripts:/docker-entrypoint-initdb.d
+      - ../../chatdb/initscripts:/docker-entrypoint-initdb.d
     restart: always
      
   chatapp:
