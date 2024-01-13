@@ -14,7 +14,7 @@ services:
       - /home/garrett/chatdata/data:/var/lib/postgresql/data
       - ../chatdb/init-scripts:/docker-entrypoint-initdb.d
     restart: always
-
+     
   chatapp:
     container_name: GE_chatapp
     build:
