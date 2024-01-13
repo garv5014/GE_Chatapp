@@ -11,5 +11,4 @@ builder.Services
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.ServerAPI"));
 builder.Services.AddScoped<IChatService, ChatService>();
-
 await builder.Build().RunAsync();
