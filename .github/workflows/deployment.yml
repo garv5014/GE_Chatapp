@@ -1,10 +1,11 @@
-name: Run Unit Tests
-on: [push]
+name: Deploy Application
+
 env:
   DUCKDNSTOKEN: ${{ secrets.DUCKDNSTOKEN }}
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+
 on:
   push:
     branches:
@@ -13,10 +14,10 @@ on:
   
 jobs: 
     format: 
-        uses: ./.github/workflows/format.yml
+      uses: ./.github/workflows/format.yml
     
     unit-tests:
-        uses: ./.github/workflows/unit-test.yml
+      uses: ./.github/workflows/unit-test.yml
 
     deploy:
     needs: unit-tests
