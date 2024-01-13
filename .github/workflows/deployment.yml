@@ -17,6 +17,7 @@ jobs:
     uses: ./.github/workflows/format.yml
     
   unit-tests:
+    needs: format  
     uses: ./.github/workflows/unit-test.yml
 
   deploy:
