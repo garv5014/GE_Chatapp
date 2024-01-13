@@ -13,13 +13,13 @@ on:
   workflow_dispatch:
   
 jobs: 
-    format: 
-      uses: ./.github/workflows/format.yml
+  format: 
+    uses: ./.github/workflows/format.yml
     
-    unit-tests:
-      uses: ./.github/workflows/unit-test.yml
+  unit-tests:
+    uses: ./.github/workflows/unit-test.yml
 
-    deploy:
+  deploy:
     needs: unit-tests
     steps:
       - name: checkout repo
