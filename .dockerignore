@@ -14,7 +14,8 @@
 **/azds.yaml
 **/bin
 **/charts
-**/docker-compose*
+**/docker-compose.yml
+**/docker-compose.yaml
 **/Dockerfile*
 **/node_modules
 **/npm-debug.log
@@ -23,6 +24,7 @@
 **/values.dev.yaml
 LICENSE
 README.md
+**/*.md
 !**/.gitignore
 !.git/HEAD
 !.git/config

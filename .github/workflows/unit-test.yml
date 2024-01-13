@@ -12,6 +12,5 @@ jobs:
 
         - name: Run Tests in Docker
           run: |
-              cd ops/tests
-              docker build -t chat_tests -f Dockerfile .
-              docker run -i --rm chat_tests dotnet test
+              docker build -t chat_test -f ./ops/tests/Dockerfile .
+              docker run -i --rm chat_test dotnet test ./GE_Chatapp.sln
