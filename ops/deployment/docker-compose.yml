@@ -18,8 +18,8 @@ services:
   chatapp:
     container_name: GE_chatapp
     build:
-      context: ../../GE_Chatapp
-      dockerfile: GE_Chatapp/Dockerfile
+      context: ../../
+      dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
 
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
