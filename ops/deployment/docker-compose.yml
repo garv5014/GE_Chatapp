@@ -24,7 +24,7 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - ApiBaseAddress=https://gechatapp.duckdns.org:1360/api
-    restart: always
+    restart: always 
 
   swag:
     image: lscr.io/linuxserver/swag
