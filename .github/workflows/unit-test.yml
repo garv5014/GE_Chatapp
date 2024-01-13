@@ -5,14 +5,13 @@ on:
   workflow_call:
 jobs:
     unit-tests:
-        runs-on: self-hosted
+        runs-on: [self-hosted]
         steps:
         - name: Checkout code
           uses: actions/checkout@v2
 
-        - name: Build Docker Image
-          run: docker build -t chat_tests -f ./Unit_Test/Dockerfile .
-
         - name: Run Tests in Docker
           run: |
+              cd ops/tests
+              docker build -t chat_tests -f ./Unit_Test/Dockerfile .
               docker run -i --rm chat_tests dotnet test
