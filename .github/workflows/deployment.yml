@@ -23,6 +23,7 @@ jobs:
   integration-tests: 
     needs: format
     uses: ./.github/workflows/integration-test.yml
+
   deploy:
     needs: [unit-tests, integration-tests]
     runs-on: [self-hosted]
