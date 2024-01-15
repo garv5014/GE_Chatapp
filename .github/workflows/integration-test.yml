@@ -9,11 +9,11 @@ jobs:
         steps:
         - name: Checkout code
           uses: actions/checkout@v2
+        - name: Setup .NET Core
+          uses: actions/setup-dotnet@v3
 
-        - name: Run Tests in Docker
+        - name: Run Tests in using Docker test containers
           run: |
-            # docker compose will stand up the postgres db and required files for the tests
-            # docker compose build 
-            # docker compose up -d
-            # docker run test in docker compose
+           cd ./Integration_Test
+           dotnet test
 
