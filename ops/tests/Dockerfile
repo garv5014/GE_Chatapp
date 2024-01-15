@@ -10,6 +10,7 @@ COPY GE_Chatapp/GE_Chatapp/*.csproj ./GE_Chatapp/GE_Chatapp/
 COPY GE_Chatapp/GE_Chatapp.Client/*.csproj ./GE_Chatapp/GE_Chatapp.Client/
 COPY Chatapp.Shared/*.csproj ./Chatapp.Shared/
 COPY Unit_Test/*.csproj ./Unit_Test/
+COPY Integration_Test/*.csproj ./Integration_Test/
 RUN dotnet restore GE_Chatapp.sln
 
 # Copy everything else and build
