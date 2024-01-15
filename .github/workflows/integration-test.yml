@@ -1,4 +1,4 @@
-name: Dotnet Tests
+name: Dotnet Integration Tests
 
 on:
   workflow_dispatch:
