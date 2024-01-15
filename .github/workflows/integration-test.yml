@@ -1,0 +1,19 @@
+name: Dotnet Tests
+
+on:
+  workflow_dispatch:
+  workflow_call:
+jobs:
+    unit-tests:
+        runs-on: [self-hosted]
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Run Tests in Docker
+          run: |
+            # docker compose will stand up the postgres db and required files for the tests
+            # docker compose build 
+            # docker compose up -d
+            # docker run test in docker compose
+
