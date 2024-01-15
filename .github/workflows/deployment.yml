@@ -24,7 +24,7 @@ jobs:
     needs: format
     uses: ./.github/workflows/integration-test.yml
   deploy:
-    needs: unit-tests
+    needs: [unit-tests, integration-tests]
     runs-on: [self-hosted]
     steps:
       - name: checkout repo
