@@ -20,7 +20,7 @@ public class AddMessageTest : BaseIntegrationTest
 
     await _chatService.SendMessageAsync(message);
     var messages = await _chatService.GetMessagesAsync();
-    Assert.Equal(1, messages.Count);
+    Assert.Single(messages);
     Assert.Equal("Hello World", messages[0].MessageText);
     Assert.Equal("Test User", messages[0].Username);
   }

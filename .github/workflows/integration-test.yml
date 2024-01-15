@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   workflow_call:
 jobs:
-    unit-tests:
+    integration-tests:
         runs-on: [self-hosted]
         steps:
         - name: Checkout code
