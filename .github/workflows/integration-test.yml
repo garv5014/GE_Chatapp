@@ -16,6 +16,5 @@ jobs:
 
         - name: Run Tests in using Docker test containers
           run: |
-           cd ./Integration_Test
            dotnet test
 
