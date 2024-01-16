@@ -35,7 +35,6 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
-
     builder.ConfigureTestServices(services =>
     {
       var clientDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(HttpClient));
