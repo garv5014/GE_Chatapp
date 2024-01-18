@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 using Chatapp.Shared;
@@ -15,11 +16,18 @@ using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenTelemetry().WithTracing(b =>
+// Configure OpenTelemetry Tracing
+builder.Services.AddOpenTelemetry().WithTracing(tracing =>
 {
-  b.AddConsoleExporter();
-  b.AddOtlpExporter();
-  // The rest of your setup code goes here too
+  tracing
+      .AddAspNetCoreInstrumentation() // Automatic instrumentation for ASP.NET Core
+      .AddHttpClientInstrumentation() // Automatic instrumentation for HttpClient
+      .AddSource(new ActivitySource("Chat_App").Name)
+      .AddOtlpExporter(options =>
+      {
+        options.Endpoint = new Uri("http://otel-collector:4317"); // OTLP exporter endpoint
+      });
+  // You can add more instrumentation or exporters as needed
 });
 
 builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
@@ -28,12 +36,18 @@ builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
   metrics.AddMeter("Microsoft.AspNetCore.Http");
   metrics.AddPrometheusExporter();
   // The rest of your setup code goes here too
-  metrics.AddOtlpExporter();
+  metrics.AddOtlpExporter(options =>
+  {
+    options.Endpoint = new Uri("http://otel-collector:4317");
+  });
 });
 
 builder.Logging.AddOpenTelemetry(options =>
 {
-  options.AddOtlpExporter();
+  options.AddOtlpExporter(options =>
+  {
+    options.Endpoint = new Uri("http://otel-collector:4317");
+  });
 });
 
 builder.Services

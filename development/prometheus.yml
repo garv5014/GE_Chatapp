@@ -3,3 +3,7 @@ scrape_configs:
     scrape_interval: 10s
     static_configs:
       - targets: ['otel-collector:8888']
+  - job_name: 'application'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['ge_chatapp:8080']
