@@ -9,7 +9,32 @@ using GE_Chatapp.Components;
 
 using Microsoft.EntityFrameworkCore;
 
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenTelemetry().WithTracing(b =>
+{
+  b.AddConsoleExporter();
+  b.AddOtlpExporter();
+  // The rest of your setup code goes here too
+});
+
+builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
+{
+  metrics.AddMeter("Microsoft.AspNetCore.Hosting");
+  metrics.AddMeter("Microsoft.AspNetCore.Http");
+  metrics.AddPrometheusExporter();
+  // The rest of your setup code goes here too
+  metrics.AddOtlpExporter();
+});
+
+builder.Logging.AddOpenTelemetry(options =>
+{
+  options.AddOtlpExporter();
+});
 
 builder.Services
     .AddHttpClient("My.ServerAPI", client => client.BaseAddress = new Uri(builder.Configuration["ApiBaseAddress"] ?? throw new Exception("ApiBaseAddress not found ")));
@@ -63,6 +88,8 @@ app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(Counter).Assembly);
 
 app.MapControllers();
+
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();
 
