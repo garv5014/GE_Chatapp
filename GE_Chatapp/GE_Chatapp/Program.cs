@@ -39,6 +39,7 @@ builder.Services.AddOpenTelemetry()
     {
       metrics.AddMeter("Microsoft.AspNetCore.Hosting")
       .AddMeter("Microsoft.AspNetCore.Http")
+      .AddMeter(DiagnosticConfig.Meter.Name)
       .AddPrometheusExporter()
       // eventually add diagnostic config class
       // The rest of your setup code goes here too
