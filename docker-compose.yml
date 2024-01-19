@@ -23,9 +23,9 @@ services:
       - chat_db_data:/var/lib/postgresql/data
       - ./chatdb/initscripts:/docker-entrypoint-initdb.d
    
-  otel-collector:
+  ge_otel_collector:
     image: otel/opentelemetry-collector-contrib
-    container_name: otel-collector
+    container_name: ge_otel_collector
     command: ["--config=/etc/otelcol-contrib/config.yml", "${OTELCOL_ARGS}"]
     volumes:
       - ./development/otel-collector-config.yml:/etc/otelcol-contrib/config.yml

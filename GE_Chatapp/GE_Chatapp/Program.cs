@@ -32,7 +32,7 @@ builder.Services.AddOpenTelemetry()
         .AddSource(new ActivitySource("Chat_App").Name)
         .AddOtlpExporter(options =>
         {
-          options.Endpoint = new Uri("http://otel-collector:4317"); // OTLP exporter endpoint
+          options.Endpoint = new Uri("http://ge_otel_collector:4317"); // OTLP exporter endpoint
         });
     // You can add more instrumentation or exporters as needed
   }).WithMetrics(metrics =>
@@ -44,7 +44,7 @@ builder.Services.AddOpenTelemetry()
       // The rest of your setup code goes here too
       .AddOtlpExporter(options =>
       {
-        options.Endpoint = new Uri("http://otel-collector:4317");
+        options.Endpoint = new Uri("http://ge_otel_collector:4317");
       });
     });
 
@@ -56,19 +56,10 @@ builder.Services.AddLogging(l =>
           ResourceBuilder.CreateDefault().AddService("Chat_App"))
       .AddOtlpExporter(options =>
       {
-        options.Endpoint = new Uri("http://otel-collector:4317");
+        options.Endpoint = new Uri("http://ge_otel_collector:4317");
       });
     });
   });
-
-//builder.Logging.AddOpenTelemetry(l =>
-//{
-
-//  l.AddOtlpExporter(options =>
-//  {
-//    options.Endpoint = new Uri("http://otel-collector:4317");
-//  });
-//});
 
 builder.Services
     .AddHttpClient("My.ServerAPI", client => client.BaseAddress = new Uri(builder.Configuration["ApiBaseAddress"] ?? throw new Exception("ApiBaseAddress not found ")));
