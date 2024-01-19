@@ -9,11 +9,11 @@ processors:
 
 exporters:
   zipkin:
-    endpoint: http://zipkin:9411/api/v2/spans
+    endpoint: http://GE_zipkin:9411/api/v2/spans
   prometheus:
     endpoint: 0.0.0.0:1234 # short circuited currently
   loki:
-    endpoint: http://loki:3100/loki/api/v1/push
+    endpoint: http://GE_loki:3100/loki/api/v1/push
   
 
 extensions:

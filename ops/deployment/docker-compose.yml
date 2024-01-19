@@ -15,7 +15,7 @@ services:
       - ../../chatdb/initscripts:/docker-entrypoint-initdb.d
     restart: always
      
-  chatapp:
+  GE_chatapp:
     container_name: GE_chatapp
     build:
       context: ../../
@@ -47,7 +47,7 @@ services:
       - 0.0.0.0:1360:443
     restart: always
 
-  otel-collector:
+  GE_otel_collector:
     image: otel/opentelemetry-collector-contrib
     container_name: GE_otel_collector
     command: ["--config=/etc/otelcol-contrib/config.yml", "${OTELCOL_ARGS}"]
@@ -62,7 +62,7 @@ services:
       - 4318:4318 # OTLP http receiver
       - 55679:55679 # zpages extension 
 
-  zipkin:
+  GE_zipkin:
     image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
     container_name: GE_zipkin
     # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
@@ -72,7 +72,7 @@ services:
       # Port used for the Zipkin UI and HTTP Api
       - 9411:9411
 
-  prometheus:
+  GE_prometheus:
     image: prom/prometheus
     container_name: GE_prometheus
     command:
@@ -83,7 +83,7 @@ services:
     volumes:
       - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
 
-  grafana:
+  GE_grafana:
     image: grafana/grafana
     container_name: GE_grafana
     ports:
@@ -95,7 +95,7 @@ services:
     volumes:
       - ./grafana:/etc/grafana/provisioning/datasources
 
-  loki:
+  GE_loki:
     image: grafana/loki:2.9.0
     command: -config.file=/etc/loki/local-config.yml
     container_name: GE_loki
