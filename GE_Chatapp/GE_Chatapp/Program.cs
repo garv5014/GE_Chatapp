@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Chatapp.Shared;
 using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Services;
+using Chatapp.Shared.Telemetry;
 
 using GE_Chatapp.Client.Pages;
 using GE_Chatapp.Components;
