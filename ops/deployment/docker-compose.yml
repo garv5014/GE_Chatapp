@@ -95,6 +95,7 @@ services:
     volumes:
       - ./grafana:/etc/grafana/provisioning/datasources
       - ./dashboard:/var/lib/grafana/dashboards
+      - ./configs/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./configs/grafana.ini:/etc/grafana/grafana.ini
 
   ge_loki:
