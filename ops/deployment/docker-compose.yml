@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:latest
-    container_name: GE_chat_db
+    container_name: ge_chat_db
     ports:
       - "5432:5432"
     environment:
@@ -15,8 +15,8 @@ services:
       - ../../chatdb/initscripts:/docker-entrypoint-initdb.d
     restart: always
      
-  GE_chatapp:
-    container_name: GE_chatapp
+  ge_chatapp:
+    container_name: ge_chatapp
     build:
       context: ../../
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
@@ -29,7 +29,7 @@ services:
 
   swag:
     image: lscr.io/linuxserver/swag
-    container_name: GE_chatapp_proxy
+    container_name: ge_chatapp_proxy
     cap_add:
       - NET_ADMIN
     environment:
@@ -47,9 +47,9 @@ services:
       - 0.0.0.0:1360:443
     restart: always
 
-  GE_otel_collector:
+  ge_otel_collector:
     image: otel/opentelemetry-collector-contrib
-    container_name: GE_otel_collector
+    container_name: ge_otel_collector
     command: ["--config=/etc/otelcol-contrib/config.yml", "${OTELCOL_ARGS}"]
     volumes:
       - ./configs/otel-collector-config.yml:/etc/otelcol-contrib/config.yml
@@ -62,9 +62,9 @@ services:
       - 4318:4318 # OTLP http receiver
       - 55679:55679 # zpages extension 
 
-  GE_zipkin:
+  ge_zipkin:
     image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
-    container_name: GE_zipkin
+    container_name: ge_zipkin
     # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
     environment:
       - STORAGE_TYPE=mem
@@ -72,9 +72,9 @@ services:
       # Port used for the Zipkin UI and HTTP Api
       - 9411:9411
 
-  GE_prometheus:
+  ge_prometheus:
     image: prom/prometheus
-    container_name: GE_prometheus
+    container_name: ge_prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
@@ -83,9 +83,9 @@ services:
     volumes:
       - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
 
-  GE_grafana:
+  ge_grafana:
     image: grafana/grafana
-    container_name: GE_grafana
+    container_name: ge_grafana
     ports:
       - 3000:3000
     restart: always
@@ -95,10 +95,10 @@ services:
     volumes:
       - ./grafana:/etc/grafana/provisioning/datasources
 
-  GE_loki:
+  ge_loki:
     image: grafana/loki:2.9.0
     command: -config.file=/etc/loki/local-config.yml
-    container_name: GE_loki
+    container_name: ge_loki
     restart: always
     volumes:
      - ./configs/loki.yml:/etc/loki/local-config.yml
