@@ -12,43 +12,63 @@ using Microsoft.EntityFrameworkCore;
 
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
-
+//https://www.youtube.com/watch?v=c4AJlZeX2fE
 // Configure OpenTelemetry Tracing
-builder.Services.AddOpenTelemetry().WithTracing(tracing =>
-{
-  tracing
-      .AddAspNetCoreInstrumentation() // Automatic instrumentation for ASP.NET Core
-      .AddHttpClientInstrumentation() // Automatic instrumentation for HttpClient
-      .AddSource(new ActivitySource("Chat_App").Name)
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resourceBuilder =>
+    {
+      resourceBuilder
+          .AddService("Chat_App");
+    })
+  .WithTracing(tracing =>
+  {
+    tracing
+        .AddAspNetCoreInstrumentation() // Automatic instrumentation for ASP.NET Core
+        .AddHttpClientInstrumentation() // Automatic instrumentation for HttpClient
+        .AddSource(new ActivitySource("Chat_App").Name)
+        .AddOtlpExporter(options =>
+        {
+          options.Endpoint = new Uri("http://otel-collector:4317"); // OTLP exporter endpoint
+        });
+    // You can add more instrumentation or exporters as needed
+  }).WithMetrics(metrics =>
+    {
+      metrics.AddMeter("Microsoft.AspNetCore.Hosting")
+      .AddMeter("Microsoft.AspNetCore.Http")
+      .AddPrometheusExporter()
+      // eventually add diagnostic config class
+      // The rest of your setup code goes here too
       .AddOtlpExporter(options =>
       {
-        options.Endpoint = new Uri("http://otel-collector:4317"); // OTLP exporter endpoint
+        options.Endpoint = new Uri("http://otel-collector:4317");
       });
-  // You can add more instrumentation or exporters as needed
-});
+    });
 
-builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
-{
-  metrics.AddMeter("Microsoft.AspNetCore.Hosting");
-  metrics.AddMeter("Microsoft.AspNetCore.Http");
-  metrics.AddPrometheusExporter();
-  // The rest of your setup code goes here too
-  metrics.AddOtlpExporter(options =>
+builder.Services.AddLogging(l =>
   {
-    options.Endpoint = new Uri("http://otel-collector:4317");
+    l.AddOpenTelemetry(o =>
+    {
+      o.SetResourceBuilder(
+          ResourceBuilder.CreateDefault().AddService("Chat_App"))
+      .AddOtlpExporter(options =>
+      {
+        options.Endpoint = new Uri("http://otel-collector:4317");
+      });
+    });
   });
-});
 
-builder.Logging.AddOpenTelemetry(options =>
-{
-  options.AddOtlpExporter(options =>
-  {
-    options.Endpoint = new Uri("http://otel-collector:4317");
-  });
-});
+//builder.Logging.AddOpenTelemetry(l =>
+//{
+
+//  l.AddOtlpExporter(options =>
+//  {
+//    options.Endpoint = new Uri("http://otel-collector:4317");
+//  });
+//});
 
 builder.Services
     .AddHttpClient("My.ServerAPI", client => client.BaseAddress = new Uri(builder.Configuration["ApiBaseAddress"] ?? throw new Exception("ApiBaseAddress not found ")));

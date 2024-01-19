@@ -8,12 +8,10 @@ processors:
   batch:
 
 exporters:
-  # otlp:
-  #   endpoint: otelcol:4317
   zipkin:
     endpoint: http://zipkin:9411/api/v2/spans
   prometheus:
-    endpoint: 0.0.0.0:1234
+    endpoint: 0.0.0.0:1234 # short circuited currently
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
   
