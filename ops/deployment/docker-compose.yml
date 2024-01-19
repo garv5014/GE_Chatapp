@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:latest
-    container_name: GE-chat-db
+    container_name: GE_chat_db
     ports:
       - "5432:5432"
     environment:
@@ -29,6 +29,7 @@ services:
 
   swag:
     image: lscr.io/linuxserver/swag
+    container_name: GE_chatapp_proxy
     cap_add:
       - NET_ADMIN
     environment:
@@ -48,7 +49,7 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib
-    container_name: otel-collector
+    container_name: GE_otel_collector
     command: ["--config=/etc/otelcol-contrib/config.yml", "${OTELCOL_ARGS}"]
     volumes:
       - ./configs/otel-collector-config.yml:/etc/otelcol-contrib/config.yml
@@ -63,7 +64,7 @@ services:
 
   zipkin:
     image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
-    container_name: zipkin
+    container_name: GE_zipkin
     # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
     environment:
       - STORAGE_TYPE=mem
@@ -73,7 +74,7 @@ services:
 
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
+    container_name: GE_prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
@@ -84,7 +85,7 @@ services:
 
   grafana:
     image: grafana/grafana
-    container_name: grafana
+    container_name: GE_grafana
     ports:
       - 3000:3000
     restart: always
@@ -97,7 +98,7 @@ services:
   loki:
     image: grafana/loki:2.9.0
     command: -config.file=/etc/loki/local-config.yml
-    container_name: loki
+    container_name: GE_loki
     restart: always
     volumes:
      - ./configs/loki.yml:/etc/loki/local-config.yml
