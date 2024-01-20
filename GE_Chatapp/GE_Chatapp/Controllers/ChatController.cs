@@ -12,23 +12,24 @@ namespace GE_Chatapp.Controllers;
 public class ChatController : ControllerBase
 {
   private readonly ChatDbContext _chatDb;
-  // private readonly ILogger _logger;
+  private readonly ILogger _logger;
 
-  public ChatController(ChatDbContext chatDb)
+  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger)
   {
     _chatDb = chatDb;
-    // _logger = logger;
+    _logger = logger;
   }
 
   [HttpPost]
   public async Task<ActionResult> AddNewMessage([FromBody] Message message)
   {
     DiagnosticConfig.messageCount.Add(1);
-    // _logger.LogInformation("Adding message to database");
+    _logger.LogInformation("Adding message to database");
     try
     {
       if (message.MessageText == "FAILED")
       {
+        _logger.LogInformation("Failed to add message to database");
         throw new Exception("Message failed");
       }
 
@@ -50,7 +51,7 @@ public class ChatController : ControllerBase
   {
     var message = await _chatDb.Messages.ToListAsync();
 
-    // _logger.LogInformation("Retrieving all messages");
+    _logger.LogInformation("Retrieving all messages");
 
     if (message == null)
     {
