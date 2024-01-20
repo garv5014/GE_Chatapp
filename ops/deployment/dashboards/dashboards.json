@@ -176,9 +176,9 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "messages_new_failed_count_total",
+          "expr": "rate(messages_new_failed_count_total[$__rate_interval])",
           "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "includeNullMetadata": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -416,7 +416,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": "auto",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
