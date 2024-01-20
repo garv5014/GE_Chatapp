@@ -412,7 +412,7 @@
           "refId": "A"
         }
       ],
-      "title": "Message Count",
+      "title": "Message Rate",
       "type": "timeseries"
     }
   ],
