@@ -1,5 +1,6 @@
 ﻿using Chatapp.Shared;
 using Chatapp.Shared.Entities;
+using Chatapp.Shared.Telemetry;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ public class ChatController : ControllerBase
   [HttpPost]
   public async Task<ActionResult> AddNewMessage([FromBody] Message message)
   {
+    DiagnosticConfig.userCount.Add(1);
     await _chatDb.Messages.AddAsync(message);
     await _chatDb.SaveChangesAsync();
     return Ok();
