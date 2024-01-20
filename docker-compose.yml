@@ -57,7 +57,7 @@ services:
       - 9090:9090
     restart: unless-stopped
     volumes:
-      - ./development/prometheus.yml:/etc/prometheus/prometheus.yml
+     - ./development/prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana
@@ -68,6 +68,10 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - ./development/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/default.yml
+      - ./development/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./development/dashboards:/var/lib/grafana/dashboards
 
   loki:
     image: grafana/loki:2.9.0
