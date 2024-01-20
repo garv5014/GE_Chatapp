@@ -186,7 +186,7 @@
           "useBackend": false
         }
       ],
-      "title": "Failed Message Count",
+      "title": "Failed Message Rate",
       "type": "timeseries"
     },
     {
@@ -423,7 +423,7 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
