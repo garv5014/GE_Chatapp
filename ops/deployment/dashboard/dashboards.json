@@ -186,7 +186,7 @@
           "useBackend": false
         }
       ],
-      "title": "Failed Message Compose Count",
+      "title": "Failed Message Count",
       "type": "timeseries"
     },
     {
