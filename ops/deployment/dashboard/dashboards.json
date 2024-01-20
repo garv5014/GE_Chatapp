@@ -407,7 +407,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "messages_count_total{}",
+          "expr": "rate(messages_count_total{}[$__rate_interval])",
           "range": true,
           "refId": "A"
         }
