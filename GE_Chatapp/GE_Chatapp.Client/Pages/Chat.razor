@@ -31,7 +31,7 @@
     </ul>
   </div>
 
-    <div class='text-center container'>
+    <div class='text-center container '>
         <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
         <input type="text" @bind="Message" placeholder="Type a message" class="form-control" />
         <div class="row">
@@ -39,7 +39,7 @@
                 <InputFile OnChange="@LoadFiles" multiple accept=".jpg" class="form-control"/>
             </div>
             <div class="col-3">
-                <button @onclick=@(() => SendMessage() ) class="btn">Send</button>
+                <button @onclick=@(() => SendMessage() ) class="btn btn-primary">Send</button>
             </div>
         </div>
     </div>
