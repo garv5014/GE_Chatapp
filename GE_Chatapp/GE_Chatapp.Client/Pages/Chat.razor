@@ -31,11 +31,18 @@
     </ul>
   </div>
 
-  <div class='text-center'>
-    <input type="text" @bind="UserName" placeholder="Your name" />
-    <input type="text" @bind="Message" placeholder="Type a message" />
-    <button @onclick=@(() => SendMessage() )>Send</button>
-  </div>
+    <div class='text-center container'>
+        <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
+        <input type="text" @bind="Message" placeholder="Type a message" class="form-control" />
+        <div class="row">
+            <div class="col-9">
+                <InputFile OnChange="@LoadFiles" multiple accept=".jpg" class="form-control"/>
+            </div>
+            <div class="col-3">
+                <button @onclick=@(() => SendMessage() ) class="btn">Send</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -43,6 +50,16 @@
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
     List<Message> messages { get; set; } = new List<Message>();
+    List<IBrowserFile> files { get; set; } = new List<IBrowserFile>();
+  public async Task LoadFiles()
+  {
+    Console.WriteLine("Loading files");
+    foreach (var file in files)
+    {
+      var message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now };
+      await SendMessage();
+    }
+  }
 
   protected override async Task OnInitializedAsync()
   {
