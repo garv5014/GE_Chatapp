@@ -1,5 +1,6 @@
 ﻿using Chatapp.Shared;
 using Chatapp.Shared.Entities;
+using Chatapp.Shared.Simple_Models;
 using Chatapp.Shared.Telemetry;
 
 using Microsoft.AspNetCore.Mvc;
@@ -21,19 +22,30 @@ public class ChatController : ControllerBase
   }
 
   [HttpPost]
-  public async Task<ActionResult> AddNewMessage([FromBody] Message message)
+  public async Task<ActionResult> AddNewMessage([FromBody] MessageWithImages message)
   {
     DiagnosticConfig.messageCount.Add(1);
     _logger.LogInformation("Adding message to database");
     try
     {
-      if (message.MessageText == "FAILED")
+      // make new message object
+      if (message.Message.MessageText == "FAILED")
       {
         _logger.LogInformation("Failed to add message to database");
         throw new Exception("Message failed");
       }
+      // for each image make a unique file name 
+      // add that name to the message object in the picture
+      // save the picture to the image folder
+      if (message.Images.Count() > 0)
+      {
+        foreach (var item in message.Images)
+        {
 
-      await _chatDb.Messages.AddAsync(message);
+        }
+      }
+
+      await _chatDb.Messages.AddAsync(message.Message);
       await _chatDb.SaveChangesAsync();
     }
     catch
@@ -61,5 +73,29 @@ public class ChatController : ControllerBase
     }
 
     return message.OrderBy(m => m.CreatedAt).ToList();
+  }
+
+  [HttpGet("image/{id}")]
+  public async Task<ActionResult> RetrieveImage(int id)
+  {
+    var picture = await _chatDb.Pictures.FirstOrDefaultAsync(p => p.Id == id);
+
+    _logger.LogInformation("Retrieving image");
+
+    if (picture == null)
+    {
+      return NotFound("Image not found");
+    }
+
+    var filePath = Path.Combine("/image", picture.NameOfFile);
+    _logger.LogInformation("File path: " + filePath);
+    if (!System.IO.File.Exists(filePath))
+    {
+      return NotFound("File does not exist");
+    }
+
+    var contentType = "image/jpeg"; // Or dynamically determine the MIME type based on the file extension
+    var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+    return File(fileBytes, contentType, picture.NameOfFile);
   }
 }

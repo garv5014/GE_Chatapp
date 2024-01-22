@@ -9,7 +9,9 @@ services:
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
-  
+    volumes:
+      - images_store:/app/images
+
   postgres:
     image: postgres:latest
     container_name: chatappdb
@@ -84,3 +86,4 @@ services:
 
 volumes:
   chat_db_data:
+  images_store:  

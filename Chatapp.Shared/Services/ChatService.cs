@@ -2,6 +2,7 @@
 
 using Chatapp.Shared.Entities;
 using Chatapp.Shared.Interfaces;
+using Chatapp.Shared.Simple_Models;
 
 namespace Chatapp.Shared.Services;
 public class ChatService : IChatService
@@ -13,14 +14,13 @@ public class ChatService : IChatService
     _httpClient = httpClient;
   }
 
-  public async Task<List<Message>> GetMessagesAsync()
+  public Task<List<Message>> GetMessagesAsync()
   {
-    Console.WriteLine($" \n\nGetMessagesAsync {_httpClient.BaseAddress} \n\n");
-    return await _httpClient.GetFromJsonAsync<List<Message>>("api/chat") ?? [];
+    throw new NotImplementedException();
   }
 
-  public async Task SendMessageAsync(Message message)
+  public Task SendMessageAsync(MessageWithImages message)
   {
-    await _httpClient.PostAsJsonAsync("api/chat", message);
+    return _httpClient.PostAsJsonAsync("api/chat", message);
   }
 }
