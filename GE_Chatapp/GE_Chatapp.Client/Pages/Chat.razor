@@ -5,6 +5,7 @@
 @using Chatapp.Shared.Interfaces
 @using Chatapp.Shared.Services
 @using Chatapp.Shared.Entities
+@using Chatapp.Shared.Simple_Models
 
 <h1>Chat Room</h1>
 
@@ -49,35 +50,42 @@
 @code {
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
-    List<Message> messages { get; set; } = new List<Message>();
-    List<IBrowserFile> files { get; set; } = new List<IBrowserFile>();
-  public async Task LoadFiles()
-  {
-    Console.WriteLine("Loading files");
-    foreach (var file in files)
+    List<MessageWithImages> messages { get; set; } = new List<MessageWithImages>();
+    List<string> dataURIs { get; set; } = new List<string>();
+
+    public async Task LoadFiles(InputFileChangeEventArgs e)
     {
-      var message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now };
-      await SendMessage();
+        dataURIs.Clear();
+        foreach (var file in e.GetMultipleFiles())
+        {
+            var format = "image/jpg"; // Adjust the format as necessary
+            using var stream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            var base64String = Convert.ToBase64String(memoryStream.ToArray());
+            var dataUri = $"data:{format};base64,{base64String}";
+            dataURIs.Add(dataUri);
+        }
     }
-  }
 
-  protected override async Task OnInitializedAsync()
-  {
-    Console.WriteLine("Initializing chat");
-    messages = await ChatService.GetMessagesAsync();
-    Console.WriteLine("here are the messages", messages);
-  }
-
-  public async Task SendMessage()
-  {
-    Console.WriteLine("Sending message");
-    if (!string.IsNullOrWhiteSpace(Message) && !string.IsNullOrWhiteSpace(UserName))
+    protected override async Task OnInitializedAsync()
     {
-      var chatMessage = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now };
-      await ChatService.SendMessageAsync(chatMessage);
-      Message = ""; // Clear the message field after sending
-      await OnInitializedAsync();
+        Console.WriteLine("Initializing chat");
+        messages = await ChatService.GetMessagesAsync();
+        Console.WriteLine("here are the messages", messages);
     }
-  }
 
+    public async Task SendMessage()
+    {
+        Console.WriteLine("Sending message");
+
+        if (!string.IsNullOrWhiteSpace(Message) && !string.IsNullOrWhiteSpace(UserName))
+        {
+            var chatMessage = new MessageWithImages { Message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now }, Images = dataURIs };
+            await ChatService.SendMessageAsync(chatMessage);
+            Message = ""; // Clear the message field after sending
+            dataURIs.Clear();
+            await OnInitializedAsync();
+        }
+    }
 }
