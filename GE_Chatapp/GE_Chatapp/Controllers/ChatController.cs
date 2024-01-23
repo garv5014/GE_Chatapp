@@ -80,7 +80,9 @@ public class ChatController : ControllerBase
   [HttpGet]
   public async Task<ActionResult<List<Message>>> RetrieveAllMessages()
   {
-    var message = await _chatDb.Messages.ToListAsync();
+    var message = await _chatDb.Messages
+      .Include(m => m.Pictures)
+      .ToListAsync();
 
     _logger.LogInformation("Retrieving all messages");
 
@@ -88,7 +90,7 @@ public class ChatController : ControllerBase
     {
       DiagnosticConfig.retrieveAllMessagesFailedCount.Add(1);
 
-      return StatusCode(500, "Messages are null");
+      return StatusCode(500, "No Message found in database");
     }
 
     return message.OrderBy(m => m.CreatedAt).ToList();
