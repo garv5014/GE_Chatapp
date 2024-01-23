@@ -3,7 +3,15 @@ version: '3.4'
 services:
   ge_chatapp:
     image: ${DOCKER_REGISTRY-}gechatapp
+    user: 0:0
     container_name: ge_chatapp
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          su app
+          dotnet GE_Chatapp.dll
     build:
       context: .
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
