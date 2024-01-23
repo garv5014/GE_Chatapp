@@ -23,9 +23,9 @@
           <li class="w-25">
             <div class="row">
               <p class="col-auto my-0 fs-6 fw-bold">@message.Username</p>
-              <p class="col-auto my-0 fs-6">@message.CreatedAt.ToShortTimeString()</p>
+                <p class="col-auto my-0 fs-6">@message.CreatedAt.ToShortTimeString()</p>
             </div>
-            <p class="border border-2 rounded-3 p-2 mb-3">@message.MessageText</p>
+                <p class="border border-2 rounded-3 p-2 mb-3">@message.MessageText</p>
           </li>
         }
       }
@@ -37,7 +37,7 @@
         <input type="text" @bind="Message" placeholder="Type a message" class="form-control" />
         <div class="row">
             <div class="col-9">
-                <InputFile OnChange="@LoadFiles" multiple accept=".jpg" class="form-control"/>
+                <InputFile OnChange="@LoadFiles" multiple accept=".png" class="form-control"/>
             </div>
             <div class="col-3">
                 <button @onclick=@(() => SendMessage() ) class="btn btn-primary">Send</button>
@@ -50,7 +50,7 @@
 @code {
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
-    List<MessageWithImages> messages { get; set; } = new List<MessageWithImages>();
+    List<Message> messages { get; set; } = new List<Message>();
     List<string> dataURIs { get; set; } = new List<string>();
 
     public async Task LoadFiles(InputFileChangeEventArgs e)
@@ -58,13 +58,14 @@
         dataURIs.Clear();
         foreach (var file in e.GetMultipleFiles())
         {
-            var format = "image/jpg"; // Adjust the format as necessary
-            using var stream = file.OpenReadStream();
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-            var base64String = Convert.ToBase64String(memoryStream.ToArray());
-            var dataUri = $"data:{format};base64,{base64String}";
-            dataURIs.Add(dataUri);
+            if (file.Size > 100000000)
+            {
+                Console.WriteLine("file too big");
+            }
+            else {
+                var fileURI = await ConvertToBase64(file);
+                dataURIs.Add(fileURI);
+            }
         }
     }
 
@@ -81,11 +82,21 @@
 
         if (!string.IsNullOrWhiteSpace(Message) && !string.IsNullOrWhiteSpace(UserName))
         {
+            Console.WriteLine($"here sis the Username ${UserName} Here is the ${Message}");
             var chatMessage = new MessageWithImages { Message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now }, Images = dataURIs };
             await ChatService.SendMessageAsync(chatMessage);
             Message = ""; // Clear the message field after sending
             dataURIs.Clear();
             await OnInitializedAsync();
         }
+    }
+
+    public async Task<string> ConvertToBase64(IBrowserFile file)
+    {
+        var format = "image/png"; // Adjust the format as necessary, or dynamically based on the file
+        using var memoryStream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(memoryStream);
+        var base64String = Convert.ToBase64String(memoryStream.ToArray());
+        return $"data:{format};base64,{base64String}";
     }
 }

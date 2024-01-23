@@ -3,8 +3,10 @@ using Chatapp.Shared.Entities;
 using Chatapp.Shared.Simple_Models;
 using Chatapp.Shared.Telemetry;
 
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace GE_Chatapp.Controllers;
 
@@ -24,7 +26,6 @@ public class ChatController : ControllerBase
   [HttpPost]
   public async Task<ActionResult> AddNewMessage([FromBody] MessageWithImages message)
   {
-    DiagnosticConfig.messageCount.Add(1);
     _logger.LogInformation("Adding message to database");
     try
     {
@@ -37,21 +38,33 @@ public class ChatController : ControllerBase
       // for each image make a unique file name 
       // add that name to the message object in the picture
       // save the picture to the image folder
+      _logger.LogInformation($"Here is the image count {message.Images.Count()}");
       if (message.Images.Count() > 0)
       {
-        foreach (var item in message.Images)
+        foreach (var imageURI in message.Images)
         {
+          var picture = new Picture();
+          picture.NameOfFile = Guid.NewGuid().ToString();
+          picture.BelongsTo = message.Message.Id;
+          var image = imageURI.Replace("data:image/png;base64,", "");
+          _logger.LogInformation($"Saving image {picture.NameOfFile} to database");
 
+          byte[] bytes = Convert.FromBase64String(image);
+          string filePath = Path.Combine("/app/images", picture.NameOfFile + ".png");
+          await System.IO.File.WriteAllBytesAsync(filePath, bytes); // Write the file to the filesystem
+
+          await _chatDb.Pictures.AddAsync(picture);
         }
       }
 
       await _chatDb.Messages.AddAsync(message.Message);
       await _chatDb.SaveChangesAsync();
+      DiagnosticConfig.messageCount.Add(1);
     }
-    catch
+    catch (Exception e)
     {
+      _logger.LogError(e.Message);
       DiagnosticConfig.newMessageFailedCount.Add(1);
-
       return StatusCode(500, "Internal server error");
     }
 

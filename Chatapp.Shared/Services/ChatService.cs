@@ -14,13 +14,13 @@ public class ChatService : IChatService
     _httpClient = httpClient;
   }
 
-  public Task<List<Message>> GetMessagesAsync()
+  public async Task SendMessageAsync(MessageWithImages message)
   {
-    throw new NotImplementedException();
+    await _httpClient.PostAsJsonAsync("api/chat", message);
   }
 
-  public Task SendMessageAsync(MessageWithImages message)
+  public async Task<List<Message>> GetMessagesAsync()
   {
-    return _httpClient.PostAsJsonAsync("api/chat", message);
+    return await _httpClient.GetFromJsonAsync<List<Message>>("api/chat") ?? throw new Exception("No data returned from the api");
   }
 }
