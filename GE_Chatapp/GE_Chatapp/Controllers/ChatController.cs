@@ -38,6 +38,7 @@ public class ChatController : ControllerBase
       // for each image make a unique file name 
       // add that name to the message object in the picture
       // save the picture to the image folder
+      List<Picture> savedPictures = new List<Picture>();
       _logger.LogInformation($"Here is the image count {message.Images.Count()}");
       if (message.Images.Count() > 0)
       {
@@ -45,20 +46,25 @@ public class ChatController : ControllerBase
         {
           var picture = new Picture();
           picture.NameOfFile = Guid.NewGuid().ToString();
-          picture.BelongsTo = message.Message.Id;
           var image = imageURI.Replace("data:image/png;base64,", "");
           _logger.LogInformation($"Saving image {picture.NameOfFile} to database");
 
           byte[] bytes = Convert.FromBase64String(image);
           string filePath = Path.Combine("/app/images", picture.NameOfFile + ".png");
           await System.IO.File.WriteAllBytesAsync(filePath, bytes); // Write the file to the filesystem
-
-          await _chatDb.Pictures.AddAsync(picture);
+          savedPictures.Add(picture);
         }
       }
 
       await _chatDb.Messages.AddAsync(message.Message);
       await _chatDb.SaveChangesAsync();
+      if (savedPictures.Count() > 0)
+      {
+        var savePictures = savedPictures.Select(p => p.BelongsTo = message.Message.Id).ToList();
+      }
+      await _chatDb.Pictures.AddRangeAsync(savedPictures);
+      await _chatDb.SaveChangesAsync();
+
       DiagnosticConfig.messageCount.Add(1);
     }
     catch (Exception e)
