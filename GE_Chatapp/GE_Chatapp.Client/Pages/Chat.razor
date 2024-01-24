@@ -5,6 +5,7 @@
 @using Chatapp.Shared.Interfaces
 @using Chatapp.Shared.Services
 @using Chatapp.Shared.Entities
+@using Chatapp.Shared.Simple_Models
 
 <h1>Chat Room</h1>
 
@@ -21,46 +22,91 @@
         {
           <li class="w-25">
             <div class="row">
-              <p class="col-auto my-0 fs-6 fw-bold">@message.Username</p>
-              <p class="col-auto my-0 fs-6">@message.CreatedAt.ToShortTimeString()</p>
+              <p class="col-auto my-0 fs-6 fw-bold">@message.Message.Username</p>
+                <p class="col-auto my-0 fs-6">@message.Message.CreatedAt.ToShortTimeString()</p>
             </div>
-            <p class="border border-2 rounded-3 p-2 mb-3">@message.MessageText</p>
+            <div class="border border-2 rounded-3 p-2 mb-3 container">
+              <p >@message.Message.MessageText</p>
+            @if (message.Images.Count() > 0)
+            {
+              <div class="row">
+                @foreach ( var image in message.Images)
+                {    
+                    <img src="@image" alt="photo" class="col-auto p-3 img-fluid" />     
+                }
+              </div>
+            }
+            </div>
           </li>
         }
       }
     </ul>
   </div>
 
-  <div class='text-center'>
-    <input type="text" @bind="UserName" placeholder="Your name" />
-    <input type="text" @bind="Message" placeholder="Type a message" />
-    <button @onclick=@(() => SendMessage() )>Send</button>
-  </div>
+    <div class='text-center container '>
+        <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
+        <input type="text" @bind="Message" placeholder="Type a message" class="form-control" />
+        <div class="row">
+            <div class="col-9">
+                <InputFile OnChange="@LoadFiles" multiple accept=".png" class="form-control"/>
+            </div>
+            <div class="col-3">
+                <button @onclick=@(() => SendMessage() ) class="btn btn-primary">Send</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 @code {
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
-    List<Message> messages { get; set; } = new List<Message>();
+    List<MessageWithImages> messages { get; set; } = new List<MessageWithImages>();
+    List<string> dataURIs { get; set; } = new List<string>();
 
-  protected override async Task OnInitializedAsync()
-  {
-    Console.WriteLine("Initializing chat");
-    messages = await ChatService.GetMessagesAsync();
-    Console.WriteLine("here are the messages", messages);
-  }
-
-  public async Task SendMessage()
-  {
-    Console.WriteLine("Sending message");
-    if (!string.IsNullOrWhiteSpace(Message) && !string.IsNullOrWhiteSpace(UserName))
+    public async Task LoadFiles(InputFileChangeEventArgs e)
     {
-      var chatMessage = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now };
-      await ChatService.SendMessageAsync(chatMessage);
-      Message = ""; // Clear the message field after sending
-      await OnInitializedAsync();
+        dataURIs.Clear();
+        foreach (var file in e.GetMultipleFiles())
+        {
+            if (file.Size > 100000000)
+            {
+                Console.WriteLine("file too big");
+            }
+            else {
+                var fileURI = await ConvertToBase64(file);
+                dataURIs.Add(fileURI);
+            }
+        }
     }
-  }
 
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Initializing chat");
+        messages = await ChatService.GetMessagesAsync();
+        Console.WriteLine("here are the messages", messages);
+    }
+
+    public async Task SendMessage()
+    {
+        Console.WriteLine("Sending message");
+
+        if ((!string.IsNullOrWhiteSpace(Message) || dataURIs.Count > 0 ) && !string.IsNullOrWhiteSpace(UserName) )
+        {
+            var chatMessage = new MessageWithImages { Message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now }, Images = dataURIs };
+            await ChatService.SendMessageAsync(chatMessage);
+            Message = ""; // Clear the message field after sending
+            dataURIs.Clear();
+            await OnInitializedAsync();
+        }
+    }
+
+    public async Task<string> ConvertToBase64(IBrowserFile file)
+    {
+        var format = "image/png"; // Adjust the format as necessary, or dynamically based on the file
+        using var memoryStream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(memoryStream);
+        var base64String = Convert.ToBase64String(memoryStream.ToArray());
+        return $"data:{format};base64,{base64String}";
+    }
 }

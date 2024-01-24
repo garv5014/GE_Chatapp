@@ -6,3 +6,9 @@ create table message (
     username text not null,
     created_at timestamp not null default now()
 );
+
+create table picture (
+    id serial primary key,
+    belongs_to integer not null references message(id),
+    name_of_file text not null
+)
