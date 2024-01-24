@@ -38,6 +38,7 @@ public class ChatController : ControllerBase
       // for each image make a unique file name 
       // add that name to the message object in the picture
       // save the picture to the image folder
+      List<Picture> savedPictures = new List<Picture>();
       _logger.LogInformation($"Here is the image count {message.Images.Count()}");
       if (message.Images.Count() > 0)
       {
@@ -45,20 +46,25 @@ public class ChatController : ControllerBase
         {
           var picture = new Picture();
           picture.NameOfFile = Guid.NewGuid().ToString();
-          picture.BelongsTo = message.Message.Id;
           var image = imageURI.Replace("data:image/png;base64,", "");
           _logger.LogInformation($"Saving image {picture.NameOfFile} to database");
 
           byte[] bytes = Convert.FromBase64String(image);
           string filePath = Path.Combine("/app/images", picture.NameOfFile + ".png");
           await System.IO.File.WriteAllBytesAsync(filePath, bytes); // Write the file to the filesystem
-
-          await _chatDb.Pictures.AddAsync(picture);
+          savedPictures.Add(picture);
         }
       }
 
       await _chatDb.Messages.AddAsync(message.Message);
       await _chatDb.SaveChangesAsync();
+      if (savedPictures.Count() > 0)
+      {
+        var savePictures = savedPictures.Select(p => p.BelongsTo = message.Message.Id).ToList();
+      }
+      await _chatDb.Pictures.AddRangeAsync(savedPictures);
+      await _chatDb.SaveChangesAsync();
+
       DiagnosticConfig.messageCount.Add(1);
     }
     catch (Exception e)
@@ -72,9 +78,11 @@ public class ChatController : ControllerBase
   }
 
   [HttpGet]
-  public async Task<ActionResult<List<Message>>> RetrieveAllMessages()
+  public async Task<ActionResult<IEnumerable<MessageWithImages>>> RetrieveAllMessages()
   {
-    var message = await _chatDb.Messages.ToListAsync();
+    var message = await _chatDb.Messages
+      .Include(m => m.Pictures)
+      .ToListAsync();
 
     _logger.LogInformation("Retrieving all messages");
 
@@ -82,33 +90,40 @@ public class ChatController : ControllerBase
     {
       DiagnosticConfig.retrieveAllMessagesFailedCount.Add(1);
 
-      return StatusCode(500, "Messages are null");
+      return StatusCode(500, "No Message found in database");
     }
 
-    return message.OrderBy(m => m.CreatedAt).ToList();
+    var messagesInOrder = message.OrderBy(m => m.CreatedAt).ToList();
+
+    IEnumerable<MessageWithImages> messagesWithImages = messagesInOrder.Select(m => new MessageWithImages
+    {
+      Message = m,
+      Images = m.Pictures.Select((p) => RetrieveImage(p.Id)).ToList()
+
+    });
+    _logger.LogInformation("Retrieved all messages here is the message");
+    return messagesWithImages.ToList();
   }
 
-  [HttpGet("image/{id}")]
-  public async Task<ActionResult> RetrieveImage(int id)
+  public string RetrieveImage(int id)
   {
-    var picture = await _chatDb.Pictures.FirstOrDefaultAsync(p => p.Id == id);
+    var targetPicture = _chatDb.Pictures.Find(id);
+    // Construct the file path
+    string filePath = $"/app/images/{targetPicture?.NameOfFile ?? throw new FileNotFoundException("Target image was not found")}.png";
 
-    _logger.LogInformation("Retrieving image");
-
-    if (picture == null)
-    {
-      return NotFound("Image not found");
-    }
-
-    var filePath = Path.Combine("/image", picture.NameOfFile);
-    _logger.LogInformation("File path: " + filePath);
+    // Check if the file exists
     if (!System.IO.File.Exists(filePath))
     {
-      return NotFound("File does not exist");
+      throw new FileNotFoundException("The image file was not found.", filePath);
     }
 
-    var contentType = "image/jpeg"; // Or dynamically determine the MIME type based on the file extension
-    var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-    return File(fileBytes, contentType, picture.NameOfFile);
+    // Read the file into a byte array
+    byte[] imageBytes = System.IO.File.ReadAllBytes(filePath);
+
+    // Convert the byte array to a Base64 string
+    string base64String = Convert.ToBase64String(imageBytes);
+
+    // Construct the Data URI
+    return $"data:image/png;base64,{base64String}";
   }
 }

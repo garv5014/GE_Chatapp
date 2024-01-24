@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 
-using Chatapp.Shared.Entities;
 using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Simple_Models;
 
@@ -19,8 +18,9 @@ public class ChatService : IChatService
     await _httpClient.PostAsJsonAsync("api/chat", message);
   }
 
-  public async Task<List<Message>> GetMessagesAsync()
+  public async Task<List<MessageWithImages>> GetMessagesAsync()
   {
-    return await _httpClient.GetFromJsonAsync<List<Message>>("api/chat") ?? throw new Exception("No data returned from the api");
+    return await _httpClient.GetFromJsonAsync<List<MessageWithImages>>("api/chat") ?? throw new Exception("No data returned from the api");
   }
+
 }

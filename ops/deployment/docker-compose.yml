@@ -17,17 +17,25 @@ services:
      
   ge_chatapp:
     container_name: ge_chatapp
+    user: 0:0
     build:
       context: ../../
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
-
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          su app
+          dotnet GE_Chatapp.dll
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - ApiBaseAddress=https://gechatapp.duckdns.org:1360/api
       - AspNetCore_ENVIRONMENT=Development
       - CollectorURL=http://ge_otel_collector:4317
     restart: always 
-
+    volumes:
+      - /home/garrett/images:/app/images
   swag:
     image: lscr.io/linuxserver/swag
     container_name: ge_chatapp_proxy
@@ -111,3 +119,5 @@ services:
      - ./configs/loki.yml:/etc/loki/local-config.yml
     # ports:
     #   - "3100:3100"
+volumes:
+  images_store:  
