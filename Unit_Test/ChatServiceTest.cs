@@ -44,7 +44,7 @@ namespace Chatapp.Tests
 
       Assert.IsNotNull(result);
       Assert.That(result, Has.Count.EqualTo(1));
-      Assert.That(result[0].MessageText, Is.EqualTo("Test Message"));
+      Assert.That(result[0].Message.MessageText, Is.EqualTo("Test Message"));
 
       // Verify that the GetAsync method was called only once
       _mockHttpMessageHandler.Protected().Verify(
