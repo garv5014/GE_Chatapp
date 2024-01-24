@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using System.Text.Json;
 
+using Chatapp.Shared.Entities;
 using Chatapp.Shared.Services;
+using Chatapp.Shared.Simple_Models;
 
 using Moq;
 using Moq.Protected;
@@ -26,12 +28,12 @@ namespace Chatapp.Tests
           .ReturnsAsync(new HttpResponseMessage
           {
             StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(JsonSerializer.Serialize(new List<Shared.Entities.Message> { new Shared.Entities.Message { MessageText = "Test Message" } }))
+            Content = new StringContent(JsonSerializer.Serialize(new List<MessageWithImages> { new MessageWithImages { Message = new Message { MessageText = "Test Message" } } }))
           });
 
       _mockHttpClient = new HttpClient(_mockHttpMessageHandler.Object)
       {
-        BaseAddress = new System.Uri("http://test.com")
+        BaseAddress = new Uri("http://test.com")
       };
 
       _chatService = new ChatService(_mockHttpClient);
