@@ -11,7 +11,7 @@ services:
         - |
           chown -R 1000:1000 /app/images
           su app
-          dotnet GE_Chatapp.dll
+          dotnet GE_Chatapp.dll 
     build:
       context: .
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile

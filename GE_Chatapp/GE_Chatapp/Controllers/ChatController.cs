@@ -3,8 +3,10 @@ using Chatapp.Shared.Entities;
 using Chatapp.Shared.Simple_Models;
 using Chatapp.Shared.Telemetry;
 
+using ImageMagick;
 
 using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.EntityFrameworkCore;
 
 
@@ -16,11 +18,13 @@ public class ChatController : ControllerBase
 {
   private readonly ChatDbContext _chatDb;
   private readonly ILogger _logger;
+  private readonly IConfiguration _configuration;
 
-  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger)
+  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger, IConfiguration configuration)
   {
     _chatDb = chatDb;
     _logger = logger;
+    _configuration = configuration;
   }
 
   [HttpPost]
@@ -29,15 +33,6 @@ public class ChatController : ControllerBase
     _logger.LogInformation("Adding message to database");
     try
     {
-      // make new message object
-      if (message.Message.MessageText == "FAILED")
-      {
-        _logger.LogInformation("Failed to add message to database");
-        throw new Exception("Message failed");
-      }
-      // for each image make a unique file name 
-      // add that name to the message object in the picture
-      // save the picture to the image folder
       List<Picture> savedPictures = new List<Picture>();
       _logger.LogInformation($"Here is the image count {message.Images.Count()}");
       if (message.Images.Count() > 0)
@@ -51,7 +46,16 @@ public class ChatController : ControllerBase
 
           byte[] bytes = Convert.FromBase64String(image);
           string filePath = Path.Combine("/app/images", picture.NameOfFile + ".png");
+
+
           await System.IO.File.WriteAllBytesAsync(filePath, bytes); // Write the file to the filesystem
+
+          if (_configuration["CompressImages"] == "true")
+          {
+            var optimizer = new ImageOptimizer();
+            _logger.LogInformation($"Compressing image {picture.NameOfFile} to filesystem");
+            optimizer.Compress(filePath);
+          }
           savedPictures.Add(picture);
         }
       }
