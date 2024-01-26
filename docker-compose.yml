@@ -11,12 +11,13 @@ services:
         - |
           chown -R 1000:1000 /app/images
           su app
-          dotnet GE_Chatapp.dll
+          dotnet GE_Chatapp.dll 
     build:
       context: .
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+      - CompressImages="true"
     volumes:
       - images_store:/app/images
 
