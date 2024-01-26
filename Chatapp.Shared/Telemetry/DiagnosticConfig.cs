@@ -9,6 +9,7 @@ public static class DiagnosticConfig
   public static Meter Meter = new(ServiceName);
   public static Counter<int> userCount = Meter.CreateCounter<int>("users.count");
   public static Counter<int> messageCount = Meter.CreateCounter<int>("messages.count");
+  public static Counter<int> messageWithImageCount = Meter.CreateCounter<int>("message.with.image");
   public static Counter<int> newMessageFailedCount = Meter.CreateCounter<int>("messages.new.failed.count");
   public static Counter<int> retrieveAllMessagesFailedCount = Meter.CreateCounter<int>("messages.retrieve.failed.count");
   public static ActivitySource Source = new(ServiceName);

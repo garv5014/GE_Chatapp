@@ -1,4 +1,6 @@
-﻿using Chatapp.Shared;
+﻿using System.Diagnostics;
+
+using Chatapp.Shared;
 using Chatapp.Shared.Entities;
 using Chatapp.Shared.Simple_Models;
 using Chatapp.Shared.Telemetry;
@@ -31,12 +33,19 @@ public class ChatController : ControllerBase
   public async Task<ActionResult> AddNewMessage([FromBody] MessageWithImages message)
   {
     _logger.LogInformation("Adding message to database");
+    var currentSpan = Activity.Current;
+
     try
     {
       List<Picture> savedPictures = new List<Picture>();
       _logger.LogInformation($"Here is the image count {message.Images.Count()}");
+      currentSpan?.SetTag(DiagnosticNames.messageImagePresent, false);
+
       if (message.Images.Count() > 0)
       {
+        currentSpan?.SetTag(DiagnosticNames.messageImagePresent, true);
+        DiagnosticConfig.messageWithImageCount.Add(1);
+
         foreach (var imageURI in message.Images)
         {
           var picture = new Picture();
@@ -52,9 +61,14 @@ public class ChatController : ControllerBase
 
           if (_configuration["CompressImages"] == "true")
           {
-            var optimizer = new ImageOptimizer();
-            _logger.LogInformation($"Compressing image {picture.NameOfFile} to filesystem");
-            optimizer.Compress(filePath);
+            using (var imageCompression = DiagnosticConfig.Source.StartActivity(DiagnosticNames.imageCompression))
+            {
+              imageCompression?.SetTag(DiagnosticNames.imageCompressionId, picture.NameOfFile);
+
+              var optimizer = new ImageOptimizer();
+              _logger.LogInformation($"Compressing image {picture.NameOfFile} to filesystem");
+              optimizer.Compress(filePath);
+            }
           }
           savedPictures.Add(picture);
         }

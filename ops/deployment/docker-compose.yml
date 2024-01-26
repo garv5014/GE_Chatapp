@@ -33,6 +33,7 @@ services:
       - ApiBaseAddress=https://gechatapp.duckdns.org:1360/api
       - AspNetCore_ENVIRONMENT=Development
       - CollectorURL=http://ge_otel_collector:4317
+      - CompressImages="true"
     restart: always 
     volumes:
       - /home/garrett/images:/app/images
