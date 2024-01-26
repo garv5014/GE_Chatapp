@@ -32,13 +32,51 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
-          "mappings": []
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -50,24 +88,11 @@
       },
       "id": 3,
       "options": {
-        "displayLabels": [
-          "value"
-        ],
         "legend": {
-          "displayMode": "table",
+          "calcs": [],
+          "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true,
-          "values": [
-            "percent"
-          ]
-        },
-        "pieType": "donut",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -83,9 +108,9 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "messages_count_total{job=\"application\"}",
+          "expr": "rate(messages_count_total{job=\"application\"}[$__rate_interval])",
           "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "includeNullMetadata": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -99,7 +124,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "message_with_image_total{job=\"application\"}",
+          "expr": "rate(message_with_image_total{job=\"application\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -111,7 +136,7 @@
         }
       ],
       "title": "Message With Image vs Without",
-      "type": "piechart"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -239,7 +264,7 @@
       "type": "barchart"
     }
   ],
-  "refresh": "",
+  "refresh": false,
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -253,6 +278,6 @@
   "timezone": "",
   "title": "Image Information",
   "uid": "e3c60672-c29d-46ac-8b47-90c7cf71dc8c",
-  "version": 3,
+  "version": 1,
   "weekStart": ""
 }
