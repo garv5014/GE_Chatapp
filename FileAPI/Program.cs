@@ -19,9 +19,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
 
 Uri collector_uri = new Uri(builder?.Configuration["CollectorURL"] ?? throw new Exception("No Collector Menu Found"));
+
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resourceBuilder =>
     {
@@ -76,6 +76,7 @@ builder.Services.AddDbContext<ChatDbContext>(options =>
   options.EnableSensitiveDataLogging();
 });
 
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

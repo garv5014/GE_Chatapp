@@ -9,7 +9,6 @@ services:
         - /bin/bash
         - -c
         - |
-          chown -R 1000:1000 /app/images
           su app
           dotnet GE_Chatapp.dll 
     build:
@@ -18,9 +17,32 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
       - CompressImages=true
+    depends_on:
+      - ge_fileservice
+
+  ge_fileservice: 
+    image: ${DOCKER_REGISTRY-}gefileservice
+    user: 0:0
+    container_name: ge_fileservice
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          su app
+          dotnet FileAPI.dll
+    build:
+      context: .
+      dockerfile: FileAPI/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+      - CompressImages=true
+      - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - images_store:/app/images
-
+    ports:
+      - "5152:8080" 
+      
   postgres:
     image: postgres:latest
     container_name: chatappdb
