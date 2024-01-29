@@ -51,7 +51,7 @@ public class ChatController : ControllerBase
           var picture = new Picture();
           picture.NameOfFile = Guid.NewGuid().ToString();
           var image = imageURI.Replace("data:image/png;base64,", "");
-          _logger.LogInformation($"Saving image {picture.NameOfFile} to database");
+          _logger.LogInformation($"Saving image {picture.NameOfFile} to database {image}");
 
           byte[] bytes = Convert.FromBase64String(image);
           string filePath = Path.Combine("/app/images", picture.NameOfFile + ".png");
