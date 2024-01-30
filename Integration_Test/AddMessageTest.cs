@@ -5,7 +5,7 @@ namespace Integration_Test;
 
 public class AddMessageTest : BaseIntegrationTest
 {
-  public AddMessageTest(IntegrationTestWebAppFactory factory) : base(factory)
+  public AddMessageTest(MessageApiWebApplicationFactory factory) : base(factory)
   {
   }
 

@@ -12,7 +12,7 @@ using Testcontainers.PostgreSql;
 namespace Integration_Test;
 
 //https://www.youtube.com/watch?v=tj5ZCtvgXKY
-public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public class MessageApiWebApplicationFactory : WebApplicationFactory<GE_Chatapp.Program>, IAsyncLifetime
 {
   private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
     .WithImage("postgres:latest")

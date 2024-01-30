@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chatapp.Shared\Chatapp.Shared.csproj" />
+    <ProjectReference Include="..\FileAPI\FileAPI.csproj" />
     <ProjectReference Include="..\GE_Chatapp\GE_Chatapp\GE_Chatapp.csproj" />
   </ItemGroup>
 
