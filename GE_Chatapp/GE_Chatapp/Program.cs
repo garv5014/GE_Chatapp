@@ -67,7 +67,14 @@ builder.Services.AddLogging(l =>
 builder.Services
     .AddHttpClient("My.ServerAPI", client => client.BaseAddress = new Uri(builder.Configuration["ApiBaseAddress"] ?? throw new Exception("ApiBaseAddress not found ")));
 
-builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.ServerAPI"));
+builder.Services.AddScoped<IChatService, ChatService>(sp => new ChatService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.ServerAPI")));
+
+builder.Services
+    .AddHttpClient("My.FileAPI", client => client.BaseAddress = new Uri(builder.Configuration["FileStoreAPIAddress"] ?? throw new Exception("FileStoreAPIAddress not found ")));
+
+
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.FileAPI"));
+
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -77,7 +84,6 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddControllers().AddJsonOptions(x =>
             x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddSwaggerGen();
 
