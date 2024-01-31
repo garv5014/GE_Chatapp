@@ -54,7 +54,7 @@ public class ImageController : ControllerBase
   }
 
   [HttpGet]
-  public async Task<ActionResult<string>> RetrieveImageFromDrive([FromQuery] int imageId)
+  public Task<ActionResult<string>> RetrieveImageFromDrive([FromQuery] int imageId)
   {
     try
     {
@@ -62,12 +62,12 @@ public class ImageController : ControllerBase
       // Construct the file path
       string filePath = $"/app/images/{targetPicture?.NameOfFile ?? throw new FileNotFoundException("Target image was not found")}.png";
 
-      return _fileService.RetrieveImageFromDrive(filePath);
+      return Task.FromResult<ActionResult<string>>(_fileService.RetrieveImageFromDrive(filePath));
     }
     catch (Exception ex)
     {
       _logger.LogError($"There was an error saving your image {ex.Message}");
-      return StatusCode(500, "Internal server error in retrieving image");
+      return Task.FromResult<ActionResult<string>>(StatusCode(500, "Internal server error in retrieving image"));
     }
   }
 }
