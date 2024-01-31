@@ -20,9 +20,9 @@ public class ChatController : ControllerBase
   private readonly ChatDbContext _chatDb;
   private readonly ILogger _logger;
   private readonly IConfiguration _configuration;
-  private readonly IFileService _fileService;
+  private readonly IFileAPIService _fileService;
 
-  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger, IConfiguration configuration, IFileService fileService)
+  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger, IConfiguration configuration, IFileAPIService fileService)
   {
     _chatDb = chatDb;
     _logger = logger;
@@ -74,7 +74,7 @@ public class ChatController : ControllerBase
   }
 
   [HttpGet]
-  public async Task<ActionResult<IEnumerable<MessageWithImages>>> RetrieveAllMessages()
+  public async Task<ActionResult<IEnumerable<Message>>> RetrieveAllMessages()
   {
     var messages = await _chatDb.Messages
       .Include(m => m.Pictures)
@@ -90,25 +90,8 @@ public class ChatController : ControllerBase
     }
 
     var messagesInOrder = messages.OrderBy(m => m.CreatedAt).ToList();
-    var messagesWithImages = new List<MessageWithImages>();
-    foreach (var m in messagesInOrder)
-    {
-      var imagesForMessage = new List<string>();
-      foreach (var image in m.Pictures)
-      {
 
-        string imageURI = await _fileService.RetrieveImageFromFileApi(image.Id.ToString());
-        imagesForMessage.Add(imageURI);
-      }
-
-      messagesWithImages.Add(new MessageWithImages
-      {
-        Message = m,
-        Images = imagesForMessage
-      });
-    }
     _logger.LogInformation("Retrieved all messages here is the message");
-    return messagesWithImages.ToList();
-
+    return messagesInOrder.ToList();
   }
 }

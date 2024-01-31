@@ -70,17 +70,18 @@ public partial class Program
         });
       });
 
+    builder.Services.AddScoped<IFileAPIService, FileApiService>();
     builder.Services
         .AddHttpClient("My.ServerAPI", client => client.BaseAddress = new Uri(builder.Configuration["ApiBaseAddress"] ?? throw new Exception("ApiBaseAddress not found ")));
-
-    builder.Services.AddScoped<IChatService, ChatService>(sp => new ChatService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.ServerAPI")));
 
     builder.Services
         .AddHttpClient("My.FileAPI", client => client.BaseAddress = new Uri(builder.Configuration["FileStoreAPIAddress"] ?? throw new Exception("FileStoreAPIAddress not found ")));
 
+    builder.Services.AddScoped<IChatService, ChatService>(sp => new ChatService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.ServerAPI"), sp.GetRequiredService<IFileAPIService>()));
+
+
 
     builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.FileAPI"));
-    builder.Services.AddScoped<IFileService, FileService>();
 
 
     // Add services to the container.
@@ -110,6 +111,18 @@ public partial class Program
       app.UseWebAssemblyDebugging();
       app.UseSwagger();
       app.UseSwaggerUI();
+      app.MapGet("/api/image/{**rest}", async context =>
+      {
+        var httpClient = new HttpClient();
+        var imageUrl = $"http://ge_fileservice:8080{context.Request.Path.Value}";
+        var response = await httpClient.GetAsync(imageUrl);
+        if (response.IsSuccessStatusCode)
+        {
+          var content = await response.Content.ReadAsStreamAsync();
+          context.Response.ContentType = response?.Content?.Headers?.ContentType?.ToString();
+          await content.CopyToAsync(context.Response.Body);
+        }
+      });
     }
     else
     {

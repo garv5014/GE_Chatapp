@@ -57,17 +57,17 @@ public class MessageApiWebApplicationFactory : WebApplicationFactory<GE_Chatapp.
       // Register your ChatService to use the HttpClient from DI
       services.AddScoped<IChatService, ChatService>();
 
-      var fileServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IFileService));
+      var fileServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IFileAPIService));
       if (fileServiceDescriptor != null)
       {
         services.Remove(fileServiceDescriptor);
       }
 
       // moq file service with moq
-      var newFileServiceMok = new Mock<IFileService>();
+      var newFileServiceMok = new Mock<IFileAPIService>();
       newFileServiceMok.Setup(x => x.PostImageToFileApi(It.IsAny<SaveImageRequest>()));
 
-      services.AddScoped<IFileService>(_ => newFileServiceMok.Object);
+      services.AddScoped<IFileAPIService>(_ => newFileServiceMok.Object);
 
       var descriptor = services.SingleOrDefault(d =>
           d.ServiceType == typeof(DbContextOptions<ChatDbContext>)

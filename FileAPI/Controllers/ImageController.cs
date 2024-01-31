@@ -27,7 +27,7 @@ public class ImageController : ControllerBase
     _fileService = fileService;
   }
 
-  [HttpPost]
+  [HttpPost("save")]
   public async Task<ActionResult<string>> SaveImageToDriveAndDatabase(SaveImageRequest imageRequest)
   {
     try
@@ -53,8 +53,8 @@ public class ImageController : ControllerBase
     }
   }
 
-  [HttpGet]
-  public Task<ActionResult<string>> RetrieveImageFromDrive([FromQuery] int imageId)
+  [HttpGet("{imageId}")]
+  public Task<ActionResult<string>> RetrieveImageFromDrive([FromRoute] int imageId)
   {
     try
     {

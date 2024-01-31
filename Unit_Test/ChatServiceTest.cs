@@ -2,6 +2,7 @@
 using System.Text.Json;
 
 using Chatapp.Shared.Entities;
+using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Services;
 using Chatapp.Shared.Simple_Models;
 
@@ -35,8 +36,11 @@ namespace Chatapp.Tests
       {
         BaseAddress = new Uri("http://test.com")
       };
+      var mockFileService = new Mock<IFileAPIService>();
 
-      _chatService = new ChatService(_mockHttpClient);
+      mockFileService.Setup(m => m.RetrieveImageFromFileApi(It.IsAny<string>())).ReturnsAsync("");
+
+      _chatService = new ChatService(_mockHttpClient, mockFileService.Object);
     }
 
     [Test]
