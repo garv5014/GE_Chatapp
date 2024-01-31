@@ -34,11 +34,9 @@ services:
       - CollectorURL=http://ge_otel_collector:4317
       - FileStoreAPIAddress=http://ge_fileservice:8080/api
     restart: always 
-    volumes:
-      - /home/garrett/images:/app/images
+
 
   ge_fileservice: 
-    image: ${DOCKER_REGISTRY-}gefileservice
     user: 0:0
     container_name: ge_fileservice
     entrypoint:
@@ -57,7 +55,7 @@ services:
       - CompressImages=true
       - CollectorURL=http://ge_otel_collector:4317
     volumes:
-      - images_store:/app/images
+      - /home/garrett/images:/app/images
 
   swag:
     image: lscr.io/linuxserver/swag
