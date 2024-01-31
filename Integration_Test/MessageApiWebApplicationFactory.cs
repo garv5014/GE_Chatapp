@@ -1,12 +1,15 @@
 ﻿using Chatapp.Shared;
 using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Services;
+using Chatapp.Shared.Simple_Models;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+using Moq;
 
 using Testcontainers.PostgreSql;
 namespace Integration_Test;
@@ -53,6 +56,18 @@ public class MessageApiWebApplicationFactory : WebApplicationFactory<GE_Chatapp.
 
       // Register your ChatService to use the HttpClient from DI
       services.AddScoped<IChatService, ChatService>();
+
+      var fileServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IFileService));
+      if (fileServiceDescriptor != null)
+      {
+        services.Remove(fileServiceDescriptor);
+      }
+
+      // moq file service with moq
+      var newFileServiceMok = new Mock<IFileService>();
+      newFileServiceMok.Setup(x => x.PostImageToFileApi(It.IsAny<SaveImageRequest>()));
+
+      services.AddScoped<IFileService>(_ => newFileServiceMok.Object);
 
       var descriptor = services.SingleOrDefault(d =>
           d.ServiceType == typeof(DbContextOptions<ChatDbContext>)

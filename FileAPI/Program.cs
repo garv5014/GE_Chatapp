@@ -14,7 +14,7 @@ using OpenTelemetry.Trace;
 namespace FileAPI;
 
 
-public class Program
+public partial class Program
 {
   public static void Main(string[] args)
   {
@@ -74,7 +74,6 @@ public class Program
       });
     });
 
-    builder.Services.AddScoped<IFileService, FileService>();
 
     builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -86,6 +85,7 @@ public class Program
       options.EnableSensitiveDataLogging();
     });
 
+    builder.Services.AddScoped<IFileService, FileService>();
     var app = builder.Build();
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

@@ -8,6 +8,8 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services
     .AddHttpClient("My.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+builder.Services.AddScoped<IFileService, FileService>();
+
 
 builder.Services.AddScoped<IChatService, ChatService>(sp => new ChatService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.ServerAPI")));
 

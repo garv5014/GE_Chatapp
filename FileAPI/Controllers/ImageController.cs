@@ -54,7 +54,7 @@ public class ImageController : ControllerBase
   }
 
   [HttpGet]
-  public async Task<ActionResult<string>> RetrieveImageFromDrive([FromQuery] string imageId)
+  public async Task<ActionResult<string>> RetrieveImageFromDrive([FromQuery] int imageId)
   {
     try
     {

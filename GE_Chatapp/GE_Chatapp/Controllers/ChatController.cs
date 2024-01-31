@@ -2,6 +2,7 @@
 
 using Chatapp.Shared;
 using Chatapp.Shared.Entities;
+using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Simple_Models;
 using Chatapp.Shared.Telemetry;
 
@@ -19,15 +20,14 @@ public class ChatController : ControllerBase
   private readonly ChatDbContext _chatDb;
   private readonly ILogger _logger;
   private readonly IConfiguration _configuration;
-  private readonly HttpClient _httpClient;
+  private readonly IFileService _fileService;
 
-  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger, IConfiguration configuration, HttpClient httpClient)
+  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger, IConfiguration configuration, IFileService fileService)
   {
     _chatDb = chatDb;
     _logger = logger;
     _configuration = configuration;
-    _httpClient = httpClient;
-    _logger.LogInformation($"ChatController has been created here is your base address {httpClient.BaseAddress} ");
+    _fileService = fileService;
   }
 
   [HttpPost]
@@ -56,7 +56,7 @@ public class ChatController : ControllerBase
             messageId = message.Message.Id.ToString()
           };
           //make calls to the image api
-          await _httpClient.PostAsJsonAsync<SaveImageRequest>("api/image", imageRequest);
+          await _fileService.PostImageToFileApi(imageRequest);
         }
       }
 
@@ -96,7 +96,8 @@ public class ChatController : ControllerBase
       var imagesForMessage = new List<string>();
       foreach (var image in m.Pictures)
       {
-        string imageURI = await _httpClient.GetStringAsync($"api/image?imageId={image.Id}");
+
+        string imageURI = await _fileService.RetrieveImageFromFileApi(image.Id.ToString());
         imagesForMessage.Add(imageURI);
       }
 

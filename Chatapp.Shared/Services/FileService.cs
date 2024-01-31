@@ -1,4 +1,7 @@
-﻿using Chatapp.Shared.Interfaces;
+﻿using System.Net.Http.Json;
+
+using Chatapp.Shared.Interfaces;
+using Chatapp.Shared.Simple_Models;
 using Chatapp.Shared.Telemetry;
 
 using ImageMagick;
@@ -12,12 +15,28 @@ public class FileService : IFileService
 {
   private readonly ILogger _logger;
   private readonly IConfiguration _configuration;
+  private readonly HttpClient _httpClient;
 
-  public FileService(ILogger logger, IConfiguration configuration)
+  public FileService(ILogger<FileService> logger, IConfiguration configuration, HttpClient httpClient)
+  {
+    _logger = logger;
+    _configuration = configuration;
+    _httpClient = httpClient;
+  }
+  public FileService(ILogger<FileService> logger, IConfiguration configuration)
   {
     _logger = logger;
     _configuration = configuration;
   }
+  public async Task PostImageToFileApi(SaveImageRequest imageRequest)
+  {
+    await _httpClient.PostAsJsonAsync<SaveImageRequest>("api/image", imageRequest);
+  }
+  public async Task<string> RetrieveImageFromFileApi(string imageId)
+  {
+    return await _httpClient.GetStringAsync($"api/image?imageId={imageId}");
+  }
+
   public string RetrieveImageFromDrive(string imagePath)
   {
     if (!File.Exists(imagePath))
@@ -34,6 +53,7 @@ public class FileService : IFileService
     // Construct the Data URI
     return $"data:image/png;base64,{base64String}";
   }
+
 
   public string SaveImageToDrive(string base64Image)
   {

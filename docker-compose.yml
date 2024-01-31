@@ -16,7 +16,6 @@ services:
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
-      - CompressImages=true
     depends_on:
       - ge_fileservice
 

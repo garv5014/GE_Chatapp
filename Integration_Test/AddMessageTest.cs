@@ -3,7 +3,7 @@ using Chatapp.Shared.Simple_Models;
 
 namespace Integration_Test;
 
-public class AddMessageTest : BaseIntegrationTest
+public class AddMessageTest : BaseMessageIntegrationTest
 {
   public AddMessageTest(MessageApiWebApplicationFactory factory) : base(factory)
   {

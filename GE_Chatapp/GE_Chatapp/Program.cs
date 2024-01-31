@@ -19,7 +19,7 @@ namespace GE_Chatapp;
 
 //https://www.youtube.com/watch?v=c4AJlZeX2fE
 // Configure OpenTelemetry Tracing
-public class Program
+public partial class Program
 {
   public static void Main(string[] args)
   {
@@ -80,6 +80,7 @@ public class Program
 
 
     builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.FileAPI"));
+    builder.Services.AddScoped<IFileService, FileService>();
 
 
     // Add services to the container.
@@ -132,4 +133,3 @@ public class Program
     app.Run();
   }
 }
-

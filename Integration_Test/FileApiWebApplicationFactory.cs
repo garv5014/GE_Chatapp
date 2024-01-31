@@ -1,10 +1,13 @@
 ﻿using Chatapp.Shared;
+using Chatapp.Shared.Interfaces;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+using Moq;
 
 using Testcontainers.PostgreSql;
 
@@ -35,11 +38,32 @@ public class FileApiWebApplicationFactory : WebApplicationFactory<FileAPI.Progra
   {
     builder.ConfigureTestServices(services =>
     {
+
       var clientDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(HttpClient));
       if (clientDescriptor != null)
       {
         services.Remove(clientDescriptor);
       }
+
+      // Register HttpClient to be provided from the factory's CreateClient method
+      services.AddScoped(sp =>
+      {
+        // Create an HttpClient using the in-memory test server
+        var client = this.CreateClient();
+        return client;
+      });
+
+      var fileServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IFileService));
+      if (fileServiceDescriptor != null)
+      {
+        services.Remove(fileServiceDescriptor);
+      }
+
+      // moq file service with moq
+      var newFileServiceMok = new Mock<IFileService>();
+      newFileServiceMok.Setup(x => x.SaveImageToDrive(It.IsAny<string>())).Returns(Guid.NewGuid().ToString());
+
+      services.AddScoped<IFileService>(_ => newFileServiceMok.Object);
 
       var descriptor = services.SingleOrDefault(d =>
           d.ServiceType == typeof(DbContextOptions<ChatDbContext>)

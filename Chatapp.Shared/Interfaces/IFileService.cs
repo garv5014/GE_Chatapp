@@ -1,4 +1,6 @@
-﻿namespace Chatapp.Shared.Interfaces;
+﻿using Chatapp.Shared.Simple_Models;
+
+namespace Chatapp.Shared.Interfaces;
 
 public interface IFileService
 {
@@ -15,4 +17,7 @@ public interface IFileService
   /// <param name="imageId"></param>
   /// <returns></returns>
   string RetrieveImageFromDrive(string imagePath);
+
+  Task<string> RetrieveImageFromFileApi(string imageId);
+  Task PostImageToFileApi(SaveImageRequest imageRequest);
 }
