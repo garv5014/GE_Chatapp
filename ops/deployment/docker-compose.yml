@@ -52,7 +52,7 @@ services:
       dockerfile: FileAPI/Dockerfile
     restart: always
     environment:
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - CompressImages=true
       - CollectorURL=http://ge_otel_collector:4317
     volumes:
