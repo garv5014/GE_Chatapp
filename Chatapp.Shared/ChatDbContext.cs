@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Chatapp.Shared.Entities;
+﻿using Chatapp.Shared.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
