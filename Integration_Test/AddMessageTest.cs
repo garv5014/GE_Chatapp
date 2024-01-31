@@ -3,9 +3,9 @@ using Chatapp.Shared.Simple_Models;
 
 namespace Integration_Test;
 
-public class AddMessageTest : BaseIntegrationTest
+public class AddMessageTest : BaseMessageIntegrationTest
 {
-  public AddMessageTest(IntegrationTestWebAppFactory factory) : base(factory)
+  public AddMessageTest(MessageApiWebApplicationFactory factory) : base(factory)
   {
   }
 

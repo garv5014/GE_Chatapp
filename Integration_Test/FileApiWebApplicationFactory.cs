@@ -1,6 +1,5 @@
 ﻿using Chatapp.Shared;
 using Chatapp.Shared.Interfaces;
-using Chatapp.Shared.Services;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -8,11 +7,13 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using Moq;
+
 using Testcontainers.PostgreSql;
+
 namespace Integration_Test;
 
-//https://www.youtube.com/watch?v=tj5ZCtvgXKY
-public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public class FileApiWebApplicationFactory : WebApplicationFactory<FileAPI.Program>, IAsyncLifetime
 {
   private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
     .WithImage("postgres:latest")
@@ -37,6 +38,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
   {
     builder.ConfigureTestServices(services =>
     {
+
       var clientDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(HttpClient));
       if (clientDescriptor != null)
       {
@@ -51,8 +53,17 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         return client;
       });
 
-      // Register your ChatService to use the HttpClient from DI
-      services.AddScoped<IChatService, ChatService>();
+      var fileServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IFileService));
+      if (fileServiceDescriptor != null)
+      {
+        services.Remove(fileServiceDescriptor);
+      }
+
+      // moq file service with moq
+      var newFileServiceMok = new Mock<IFileService>();
+      newFileServiceMok.Setup(x => x.SaveImageToDrive(It.IsAny<string>())).Returns(Guid.NewGuid().ToString());
+
+      services.AddScoped<IFileService>(_ => newFileServiceMok.Object);
 
       var descriptor = services.SingleOrDefault(d =>
           d.ServiceType == typeof(DbContextOptions<ChatDbContext>)
@@ -67,8 +78,6 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         options.UseNpgsql(_dbContainer.GetConnectionString());
       });
     });
-
-
   }
   public static string FindProjectRootByMarker()
   {

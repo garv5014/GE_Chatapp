@@ -31,12 +31,34 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - ApiBaseAddress=https://gechatapp.duckdns.org:1360/api
-      - AspNetCore_ENVIRONMENT=Development
       - CollectorURL=http://ge_otel_collector:4317
-      - CompressImages=true
+      - FileStoreAPIAddress=http://ge_fileservice:8080/api
     restart: always 
     volumes:
       - /home/garrett/images:/app/images
+
+  ge_fileservice: 
+    image: ${DOCKER_REGISTRY-}gefileservice
+    user: 0:0
+    container_name: ge_fileservice
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          su app
+          dotnet FileAPI.dll
+    build:
+      context: ../../
+      dockerfile: FileAPI/Dockerfile
+    restart: always
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+      - CompressImages=true
+      - CollectorURL=http://ge_otel_collector:4317
+    volumes:
+      - images_store:/app/images
+
   swag:
     image: lscr.io/linuxserver/swag
     container_name: ge_chatapp_proxy
