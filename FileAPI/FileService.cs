@@ -11,7 +11,6 @@ public class FileService : IFileService
 {
   private readonly ILogger _logger;
   private readonly FileAPIOptions _fileAPIOptions;
-  private readonly IConfiguration _configuration;
 
   public FileService(ILogger<FileService> logger, FileAPIOptions fileAPIOptions)
   {
@@ -25,6 +24,7 @@ public class FileService : IFileService
     {
       throw new FileNotFoundException("The image file was not found.", imagePath);
     }
+    Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000).Wait();
 
     // Read the file into a byte array
     byte[] imageBytes = File.ReadAllBytes(imagePath);
@@ -42,7 +42,7 @@ public class FileService : IFileService
     var NameOfFile = Guid.NewGuid().ToString();
     // save to drive
     _logger.LogInformation($"Saving image {NameOfFile} to drive");
-
+    Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000).Wait();
     byte[] bytes = Convert.FromBase64String(base64Image);
     string filePath = Path.Combine("/app/images", NameOfFile + ".png");
 
