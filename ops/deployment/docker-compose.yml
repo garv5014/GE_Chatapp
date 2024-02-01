@@ -33,7 +33,7 @@ services:
       - ApiBaseAddress=https://gechatapp.duckdns.org:1360/api
       - CollectorURL=http://ge_otel_collector:4317
       - ASPNETCORE_ENVIRONMENT=Development
-      - FileStoreAPIAddress=http://ge_fileservice:8080/api
+      - FileStoreAPIAddress=https://gechatapp.duckdns.org:1360/api
     restart: always 
 
 
