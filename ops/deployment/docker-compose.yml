@@ -54,6 +54,7 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - FileAPIOptions__CompressImages=true
+      - FileAPIOptions__APIDelayInSeconds=1
       - CollectorURL=http://ge_otel_collector:4317
     volumes:
       - /home/garrett/images:/app/images
