@@ -36,7 +36,7 @@ services:
       dockerfile: FileAPI/Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
-      - CompressImages=true
+      - FileAPIOptions__CompressImages=true
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - images_store:/app/images
