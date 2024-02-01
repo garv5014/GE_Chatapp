@@ -5,6 +5,8 @@ using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Services;
 using Chatapp.Shared.Telemetry;
 
+using FileAPI.Options;
+
 using Microsoft.EntityFrameworkCore;
 
 using OpenTelemetry.Logs;
@@ -86,6 +88,9 @@ public partial class Program
     });
 
     builder.Services.AddScoped<IFileService, FileService>();
+    FileAPIOptions apiOptions = new();
+    builder.Configuration.GetRequiredSection("FileAPIOptions").Bind(apiOptions);
+    builder.Services.AddSingleton(apiOptions);
     var app = builder.Build();
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
