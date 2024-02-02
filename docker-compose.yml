@@ -55,6 +55,13 @@ services:
     volumes:
       - chat_db_data:/var/lib/postgresql/data
       - ./chatdb/initscripts:/docker-entrypoint-initdb.d
+
+  cache:
+    image: bitnami/redis
+    environment:
+      REDIS_PASSWORD: redis
+    ports:
+      - "6379:6379"
    
   ge_otel_collector:
     image: otel/opentelemetry-collector-contrib

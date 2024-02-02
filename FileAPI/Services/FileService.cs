@@ -1,22 +1,21 @@
 ﻿using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Telemetry;
 
+using FileAPI.Options;
+
 using ImageMagick;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-
-namespace Chatapp.Shared.Services;
+namespace FileAPI.Services;
 
 public class FileService : IFileService
 {
   private readonly ILogger _logger;
-  private readonly IConfiguration _configuration;
+  private readonly FileAPIOptions _fileAPIOptions;
 
-  public FileService(ILogger<FileService> logger, IConfiguration configuration)
+  public FileService(ILogger<FileService> logger, FileAPIOptions fileAPIOptions)
   {
     _logger = logger;
-    _configuration = configuration;
+    _fileAPIOptions = fileAPIOptions;
   }
 
   public string RetrieveImageFromDrive(string imagePath)
@@ -25,6 +24,7 @@ public class FileService : IFileService
     {
       throw new FileNotFoundException("The image file was not found.", imagePath);
     }
+    Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000).Wait();
 
     // Read the file into a byte array
     byte[] imageBytes = File.ReadAllBytes(imagePath);
@@ -42,13 +42,13 @@ public class FileService : IFileService
     var NameOfFile = Guid.NewGuid().ToString();
     // save to drive
     _logger.LogInformation($"Saving image {NameOfFile} to drive");
-
+    Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000).Wait();
     byte[] bytes = Convert.FromBase64String(base64Image);
     string filePath = Path.Combine("/app/images", NameOfFile + ".png");
 
     File.WriteAllBytes(filePath, bytes); // Write the file to the filesystem
 
-    if (_configuration["CompressImages"] == "true")
+    if (_fileAPIOptions.CompressImages)
     {
       using (var imageCompression = DiagnosticConfig.Source.StartActivity(DiagnosticNames.imageCompression))
       {
