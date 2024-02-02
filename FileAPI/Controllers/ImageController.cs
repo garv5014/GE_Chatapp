@@ -15,21 +15,22 @@ public class ImageController : ControllerBase
 {
   private readonly ChatDbContext _chatDb;
   private readonly ILogger _logger;
-  private readonly IConfiguration _configuration;
   private readonly IFileService _fileService;
   private readonly FileAPIOptions _fileAPIOptions;
+  private readonly IRedisService _redisService;
 
   public ImageController(ChatDbContext chatDb,
     ILogger<ImageController> logger,
-    IConfiguration configuration,
     IFileService fileService,
-    FileAPIOptions fileAPIOptions)
+    FileAPIOptions fileAPIOptions,
+    IRedisService redisService
+    )
   {
     _chatDb = chatDb;
     _logger = logger;
-    _configuration = configuration;
     _fileService = fileService;
     _fileAPIOptions = fileAPIOptions;
+    _redisService = redisService;
   }
 
   [HttpPost("save")]
