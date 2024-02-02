@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 using Chatapp.Shared;
 using Chatapp.Shared.Interfaces;
-using FileAPI.Services;
 using Chatapp.Shared.Telemetry;
 
 using FileAPI.Options;
+using FileAPI.Services;
 
 using Microsoft.EntityFrameworkCore;
 
