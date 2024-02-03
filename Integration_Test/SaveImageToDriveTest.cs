@@ -48,7 +48,7 @@ public class SaveImageToDriveTest : IClassFixture<FileApiWebApplicationFactory>
 
     await _httpClient.PostAsJsonAsync<SaveImageRequest>("api/image/save", req);
     var savedPicture = await _dbcontext.Pictures.FirstOrDefaultAsync(p => p.BelongsTo == 1);
-    
+
     Assert.NotNull(savedPicture);
     Assert.NotNull(savedPicture.NameOfFile);
     Assert.Equal(1, savedPicture.BelongsTo);
