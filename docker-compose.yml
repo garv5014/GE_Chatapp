@@ -58,8 +58,9 @@ services:
 
   cache:
     image: bitnami/redis
+    container_name: chatappcache
     environment:
-      REDIS_PASSWORD: redis
+      - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - "6379:6379"
    
