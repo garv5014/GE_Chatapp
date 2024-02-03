@@ -79,6 +79,14 @@ services:
       - 0.0.0.0:1360:443
     restart: always
 
+  cache:
+    image: bitnami/redis
+    container_name: chatappcache
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+
   ge_otel_collector:
     image: otel/opentelemetry-collector-contrib
     container_name: ge_otel_collector
