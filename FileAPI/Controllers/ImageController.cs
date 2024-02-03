@@ -39,14 +39,19 @@ public class ImageController : ControllerBase
     try
     {
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
+
       // get base64 string from query
       var picture = new Picture();
       var image = imageRequest.imageURI.Replace("data:image/png;base64,", "");
-
       var savedFileName = _fileService.SaveImageToDrive(image);
+
+      // store image in redis
+      await _redisService.StoreValue(savedFileName, image);
+
       // get message id from query
       picture.BelongsTo = int.Parse(imageRequest.messageId);
       picture.NameOfFile = savedFileName;
+
       // save to database
       await _chatDb.Pictures.AddAsync(picture);
       await _chatDb.SaveChangesAsync();
@@ -67,6 +72,12 @@ public class ImageController : ControllerBase
     {
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
       var targetPicture = _chatDb.Pictures.Find(imageId);
+      if (_redisService.KeyExists(targetPicture?.NameOfFile))
+      {
+        _logger.LogInformation($"Image {targetPicture?.NameOfFile} retrieved from redis");
+        var cachedValue = _redisService.RetrieveKeyValue(targetPicture?.NameOfFile).ToString();
+        return $"data:image/png;base64,{cachedValue}";
+      }
       // Construct the file path
       string filePath = $"/app/images/{targetPicture?.NameOfFile ?? throw new FileNotFoundException("Target image was not found")}.png";
 
