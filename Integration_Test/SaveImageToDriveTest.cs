@@ -8,6 +8,8 @@ using Chatapp.Shared.Simple_Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using Moq;
+
 namespace Integration_Test;
 
 public class SaveImageToDriveTest : IClassFixture<FileApiWebApplicationFactory>
@@ -16,12 +18,14 @@ public class SaveImageToDriveTest : IClassFixture<FileApiWebApplicationFactory>
   private readonly IFileService _fileService;
   private readonly ChatDbContext _dbcontext;
   private readonly HttpClient _httpClient;
+  private readonly IRedisService _redisServiceMock;
   public SaveImageToDriveTest(FileApiWebApplicationFactory factory)
   {
     _scope = factory.Services.CreateScope();
     _fileService = _scope.ServiceProvider.GetRequiredService<IFileService>();
     _dbcontext = _scope.ServiceProvider.GetRequiredService<ChatDbContext>();
     _httpClient = _scope.ServiceProvider.GetRequiredService<HttpClient>();
+    _redisServiceMock = _scope.ServiceProvider.GetRequiredService<IRedisService>();
   }
 
   [Fact]
@@ -44,6 +48,8 @@ public class SaveImageToDriveTest : IClassFixture<FileApiWebApplicationFactory>
 
     await _httpClient.PostAsJsonAsync<SaveImageRequest>("api/image/save", req);
     var savedPicture = await _dbcontext.Pictures.FirstOrDefaultAsync(p => p.BelongsTo == 1);
+    
+    Assert.NotNull(savedPicture);
     Assert.NotNull(savedPicture.NameOfFile);
     Assert.Equal(1, savedPicture.BelongsTo);
   }
