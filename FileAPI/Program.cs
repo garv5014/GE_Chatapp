@@ -90,7 +90,10 @@ public partial class Program
     builder.Services.AddScoped<IFileService, FileService>();
     builder.Services.AddScoped<IRedisService, RedisService>();
 
-    FileAPIOptions apiOptions = new();
+    FileAPIOptions apiOptions = new()
+    {
+      ServiceName = "file_service",
+    };
     builder.Configuration.GetRequiredSection("FileAPIOptions").Bind(apiOptions);
     builder.Services.AddSingleton(apiOptions);
 
