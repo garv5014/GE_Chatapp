@@ -37,6 +37,7 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
       - FileAPIOptions__CompressImages=true
+      - FileAPIOptions__APIDelayInSeconds=0
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - images_store:/app/images

@@ -1,4 +1,7 @@
-﻿using Chatapp.Shared.Entities;
+﻿using System;
+using System.Collections.Generic;
+
+using Chatapp.Shared.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +17,8 @@ public partial class ChatDbContext : DbContext
   public virtual DbSet<Message> Messages { get; set; }
 
   public virtual DbSet<Picture> Pictures { get; set; }
+
+  public virtual DbSet<PictureLookup> PictureLookups { get; set; }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
@@ -46,6 +51,22 @@ public partial class ChatDbContext : DbContext
               .HasForeignKey(d => d.BelongsTo)
               .OnDelete(DeleteBehavior.ClientSetNull)
               .HasConstraintName("picture_belongs_to_fkey");
+    });
+
+    modelBuilder.Entity<PictureLookup>(entity =>
+    {
+      entity.HasKey(e => e.Id).HasName("picture_lookup_pkey");
+
+      entity.ToTable("picture_lookup");
+
+      entity.Property(e => e.Id).HasColumnName("id");
+      entity.Property(e => e.MachineName).HasColumnName("machine_name");
+      entity.Property(e => e.PictureId).HasColumnName("picture_id");
+
+      entity.HasOne(d => d.Picture).WithMany(p => p.PictureLookups)
+              .HasForeignKey(d => d.PictureId)
+              .OnDelete(DeleteBehavior.ClientSetNull)
+              .HasConstraintName("picture_lookup_picture_id_fkey");
     });
 
     OnModelCreatingPartial(modelBuilder);
