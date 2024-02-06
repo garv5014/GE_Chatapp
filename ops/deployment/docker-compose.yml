@@ -25,7 +25,6 @@ services:
         - /bin/bash
         - -c
         - |
-          chown -R 1000:1000 /app/images
           su app
           dotnet GE_Chatapp.dll
     environment:
@@ -45,7 +44,6 @@ services:
         - -c
         - |
           chown -R 1000:1000 /app/images
-          chown -R 1000:1000 /app/images/service_1
           su app
           dotnet FileAPI.dll
     build:
@@ -69,7 +67,6 @@ services:
         - -c
         - |
           chown -R 1000:1000 /app/images
-          chown -R 1000:1000 /app/images/service_2
           su app
           dotnet FileAPI.dll
     build:
