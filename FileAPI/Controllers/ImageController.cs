@@ -35,6 +35,8 @@ public class ImageController : ControllerBase
   [HttpPost("save")]
   public async Task<ActionResult<string>> SaveImageToDriveAndDatabase(SaveImageRequest imageRequest)
   {
+    using var saveImageTransaction = _chatDb.Database.BeginTransaction();
+
     try
     {
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
@@ -49,11 +51,25 @@ public class ImageController : ControllerBase
       // save to database
       await _chatDb.Pictures.AddAsync(picture);
       await _chatDb.SaveChangesAsync();
+      await saveImageTransaction.CommitAsync();
+
+      var pictureLookup = new PictureLookup
+      {
+        PictureId = picture.Id,
+        MachineName = _fileAPIOptions.ServiceName
+      };
+
+      await _chatDb.PictureLookups.AddAsync(pictureLookup);
+      await _chatDb.SaveChangesAsync();
+
       _logger.LogInformation($"Image {picture.NameOfFile} saved to database");
+
       return Ok();
     }
     catch (Exception ex)
     {
+      await saveImageTransaction.RollbackAsync();
+
       _logger.LogError($"There was an error saving your image {ex.Message}");
       return StatusCode(500, "Internal server error in saving image to database");
     }

@@ -23,7 +23,7 @@ services:
   ge_fileservice: 
     image: ${DOCKER_REGISTRY-}gefileservice
     user: 0:0
-    container_name: ge_fileservice
+    container_name: ge_fileservice-1
     entrypoint:
         - /bin/bash
         - -c
@@ -39,10 +39,18 @@ services:
       - FileAPIOptions__CompressImages=true
       - FileAPIOptions__APIDelayInSeconds=0
       - ASPNETCORE_ENVIRONMENT=Development
+      - FileAPIOptions__ServiceName=ge_fileservice-1
     volumes:
       - images_store:/app/images
     ports:
       - "5152:8080" 
+
+  nginx:
+    image: nginx:latest
+    container_name: reverse_proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      
       
   postgres:
     image: postgres:latest

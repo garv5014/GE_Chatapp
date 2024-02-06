@@ -88,6 +88,7 @@ public partial class Program
     });
 
     builder.Services.AddScoped<IFileService, FileService>();
+
     FileAPIOptions apiOptions = new();
     builder.Configuration.GetRequiredSection("FileAPIOptions").Bind(apiOptions);
     builder.Services.AddSingleton(apiOptions);
