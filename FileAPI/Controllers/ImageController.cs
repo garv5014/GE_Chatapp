@@ -18,17 +18,20 @@ public class ImageController : ControllerBase
   private readonly ILogger _logger;
   private readonly IFileService _fileService;
   private readonly FileAPIOptions _fileAPIOptions;
+  private readonly IRedisService _redisService;
 
   public ImageController(ChatDbContext chatDb,
     ILogger<ImageController> logger,
-    IConfiguration configuration,
     IFileService fileService,
-    FileAPIOptions fileAPIOptions)
+    FileAPIOptions fileAPIOptions,
+    IRedisService redisService
+    )
   {
     _chatDb = chatDb;
     _logger = logger;
     _fileService = fileService;
     _fileAPIOptions = fileAPIOptions;
+    _redisService = redisService;
   }
 
   [HttpPost("save")]
@@ -39,14 +42,19 @@ public class ImageController : ControllerBase
     try
     {
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
+
       // get base64 string from query
       var picture = new Picture();
       var image = imageRequest.imageURI.Replace("data:image/png;base64,", "");
-
       var savedFileName = _fileService.SaveImageToDrive(image);
+
+      // store image in redis
+      await _redisService.StoreValue(savedFileName, image);
+
       // get message id from query
       picture.BelongsTo = int.Parse(imageRequest.messageId);
       picture.NameOfFile = savedFileName;
+
       // save to database
       await _chatDb.Pictures.AddAsync(picture);
       await _chatDb.SaveChangesAsync();
@@ -107,6 +115,12 @@ public class ImageController : ControllerBase
         return response;
       }
 
+      if (_redisService.KeyExists(targetPicture?.NameOfFile))
+      {
+        _logger.LogInformation($"Image {targetPicture?.NameOfFile} retrieved from redis");
+        var cachedValue = _redisService.RetrieveKeyValue(targetPicture?.NameOfFile).ToString();
+        return $"data:image/png;base64,{cachedValue}";
+      }
       // Construct the file path
       string filePath = $"/app/images/{targetPicture?.NameOfFile ?? throw new FileNotFoundException("Target image was not found")}.png";
 

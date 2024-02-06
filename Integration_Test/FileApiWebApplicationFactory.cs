@@ -65,6 +65,18 @@ public class FileApiWebApplicationFactory : WebApplicationFactory<FileAPI.Progra
 
       services.AddScoped<IFileService>(_ => newFileServiceMok.Object);
 
+      var redisServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IRedisService));
+      if (redisServiceDescriptor != null)
+        services.Remove(redisServiceDescriptor);
+
+      // Mock Redis service with Moq
+      var newRedisServiceMok = new Mock<IRedisService>();
+      newRedisServiceMok.Setup(rs => rs.KeyExists(It.IsAny<string>())).Returns(true);
+      newRedisServiceMok.Setup(rs => rs.RetrieveKeyValue(It.IsAny<string>())).Returns("mocked value");
+      newRedisServiceMok.Setup(rs => rs.StoreValue(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+
+      services.AddScoped<IRedisService>(_ => newRedisServiceMok.Object);
+
       var descriptor = services.SingleOrDefault(d =>
           d.ServiceType == typeof(DbContextOptions<ChatDbContext>)
         );

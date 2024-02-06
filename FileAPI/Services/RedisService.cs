@@ -11,17 +11,22 @@ public class RedisService : IRedisService
 
   public RedisService()
   {
-    _redis = ConnectionMultiplexer.Connect("cache:6379");
+    _redis = ConnectionMultiplexer.Connect("chatappcache:6379");
     _db = _redis.GetDatabase();
   }
 
-  public Task RetreiveKeyValue(string key)
+  public bool KeyExists(string key)
   {
-    throw new NotImplementedException();
+    return _db.KeyExists(key);
   }
 
-  public Task StoreValue(string key, string value)
+  public string RetrieveKeyValue(string key)
   {
-    throw new NotImplementedException();
+    return _db.StringGet(key).ToString();
+  }
+
+  public async Task StoreValue(string key, string value)
+  {
+    await _db.StringSetAsync(key, value);
   }
 }

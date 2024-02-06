@@ -88,10 +88,12 @@ public partial class Program
     });
 
     builder.Services.AddScoped<IFileService, FileService>();
+    builder.Services.AddScoped<IRedisService, RedisService>();
 
     FileAPIOptions apiOptions = new();
     builder.Configuration.GetRequiredSection("FileAPIOptions").Bind(apiOptions);
     builder.Services.AddSingleton(apiOptions);
+
     var app = builder.Build();
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
