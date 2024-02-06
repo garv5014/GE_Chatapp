@@ -114,7 +114,7 @@ public partial class Program
       app.MapGet("/api/image/{**rest}", async context =>
       {
         var httpClient = new HttpClient();
-        var imageUrl = $"http://ge_fileservice:8080{context.Request.Path.Value}";
+        var imageUrl = $"http://nginx:80{context.Request.Path.Value}";
         var response = await httpClient.GetAsync(imageUrl);
         if (response.IsSuccessStatusCode)
         {

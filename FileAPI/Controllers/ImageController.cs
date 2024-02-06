@@ -6,6 +6,7 @@ using Chatapp.Shared.Simple_Models;
 using FileAPI.Options;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FileAPI.Controllers;
 
@@ -81,36 +82,46 @@ public class ImageController : ControllerBase
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
       var targetPicture = _chatDb.Pictures.Find(imageId);
       // check if picture belongs to this service
-      var pictureLookup = _chatDb.PictureLookups.FirstOrDefault(p => p.PictureId == imageId);
+      var pictureLookup = await _chatDb.PictureLookups.FirstOrDefaultAsync(p => p.PictureId == imageId);
       if (pictureLookup == null)
       {
-        _logger.LogError($"Image {targetPicture?.NameOfFile} does not belong to this service");
-        return StatusCode(404, "Image not found");
+        _logger.LogError($"Image {targetPicture?.NameOfFile} could not be found in database");
+        return StatusCode(404, "Image couldn't be found in other services");
       }
 
       if (pictureLookup.MachineName != _fileAPIOptions.ServiceName)
       {
         // get the service name from the picture lookup
-        _logger.LogError($"Image {targetPicture?.NameOfFile} does not belong to this service");
+        _logger.LogInformation($"Image {targetPicture?.NameOfFile} does not belong to this service");
         // call the other service to get the image
         var client = new HttpClient()
         {
           BaseAddress = new Uri($"http://{pictureLookup.MachineName}:8080")
         };
 
-        var response = await client.GetStringAsync($"/api/images/{imageId}");
+        var response = await client.GetStringAsync($"/api/image/{imageId}");
+        if (response == null)
+        {
+          return StatusCode(404, "Image couldn't be found in other services");
+        }
         return response;
       }
 
       // Construct the file path
       string filePath = $"/app/images/{targetPicture?.NameOfFile ?? throw new FileNotFoundException("Target image was not found")}.png";
 
-      return _fileService.RetrieveImageFromDrive(filePath);
+      var base64 = _fileService.RetrieveImageFromDrive(filePath);
+      return await MakeDataUri(base64, "png");
     }
     catch (Exception ex)
     {
       _logger.LogError($"There was an error saving your image {ex.Message}");
       return StatusCode(500, "Internal server error in retrieving image");
     }
+  }
+
+  public Task<string> MakeDataUri(string base64Image, string imageType)
+  {
+    return Task.FromResult($"data:image/{imageType};base64,{base64Image}");
   }
 }

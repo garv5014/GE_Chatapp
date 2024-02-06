@@ -33,7 +33,7 @@ public class FileService : IFileService
     string base64String = Convert.ToBase64String(imageBytes);
 
     // Construct the Data URI
-    return $"data:image/png;base64,{base64String}";
+    return base64String;
   }
 
 
