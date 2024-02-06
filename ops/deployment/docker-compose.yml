@@ -37,14 +37,15 @@ services:
     restart: always 
 
 
-  ge_fileservice: 
+  ge_fileservice-1: 
     user: 0:0
-    container_name: ge_fileservice
+    container_name: ge_fileservice-1
     entrypoint:
         - /bin/bash
         - -c
         - |
           chown -R 1000:1000 /app/images
+          chown -R 1000:1000 /app/images/service_1
           su app
           dotnet FileAPI.dll
     build:
@@ -56,8 +57,33 @@ services:
       - FileAPIOptions__CompressImages=true
       - FileAPIOptions__APIDelayInSeconds=1
       - CollectorURL=http://ge_otel_collector:4317
+      - FileAPIOptions__ServiceName=ge_fileservice-1
     volumes:
-      - /home/garrett/images:/app/images
+      - /home/garrett/images/service_1:/app/images
+
+  ge_fileservice-2: 
+    user: 0:0
+    container_name: ge_fileservice-2
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          chown -R 1000:1000 /app/images/service_2
+          su app
+          dotnet FileAPI.dll
+    build:
+      context: ../../
+      dockerfile: FileAPI/Dockerfile
+    restart: always
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - FileAPIOptions__CompressImages=true
+      - FileAPIOptions__APIDelayInSeconds=1
+      - CollectorURL=http://ge_otel_collector:4317
+      - FileAPIOptions__ServiceName=ge_fileservice-2
+    volumes:
+      - /home/garrett/images/service_2:/app/images
 
   swag:
     image: lscr.io/linuxserver/swag

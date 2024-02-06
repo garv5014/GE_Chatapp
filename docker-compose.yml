@@ -16,14 +16,16 @@ services:
       dockerfile: GE_Chatapp/GE_Chatapp/Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
-      - FileStoreAPIAddress=http://ge_fileservice:8080/
+      - FileStoreAPIAddress=http://nginx:80
+      - ApiBaseAddress=http://nginx:80 
     depends_on:
-      - ge_fileservice
+      - ge_fileservice-1
+      - ge_fileservice-2
 
-  ge_fileservice: 
+  ge_fileservice-1: 
     image: ${DOCKER_REGISTRY-}gefileservice
     user: 0:0
-    container_name: ge_fileservice
+    container_name: ge_fileservice-1
     entrypoint:
         - /bin/bash
         - -c
@@ -37,11 +39,45 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
       - FileAPIOptions__CompressImages=true
+      - FileAPIOptions__APIDelayInSeconds=0
       - ASPNETCORE_ENVIRONMENT=Development
+      - FileAPIOptions__ServiceName=ge_fileservice-1
     volumes:
-      - images_store:/app/images
+      - images_store1:/app/images
     ports:
       - "5152:8080" 
+
+  ge_fileservice-2: 
+    image: ${DOCKER_REGISTRY-}gefileservice
+    user: 0:0
+    container_name: ge_fileservice-2
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          su app
+          dotnet FileAPI.dll
+    build:
+      context: .
+      dockerfile: FileAPI/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+      - FileAPIOptions__CompressImages=true
+      - FileAPIOptions__APIDelayInSeconds=0
+      - ASPNETCORE_ENVIRONMENT=Development
+      - FileAPIOptions__ServiceName=ge_fileservice-2
+    volumes:
+      - images_store2:/app/images
+    ports:
+      - "5153:8080" 
+
+  nginx:
+    image: nginx:latest
+    container_name: reverse_proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      
       
   postgres:
     image: postgres:latest
@@ -125,4 +161,6 @@ services:
 
 volumes:
   chat_db_data:
-  images_store:  
+  images_store1:
+  images_store2:  
+      

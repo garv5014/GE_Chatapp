@@ -6,6 +6,7 @@ using Chatapp.Shared.Simple_Models;
 using FileAPI.Options;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FileAPI.Controllers;
 
@@ -36,6 +37,8 @@ public class ImageController : ControllerBase
   [HttpPost("save")]
   public async Task<ActionResult<string>> SaveImageToDriveAndDatabase(SaveImageRequest imageRequest)
   {
+    using var saveImageTransaction = _chatDb.Database.BeginTransaction();
+
     try
     {
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
@@ -55,11 +58,25 @@ public class ImageController : ControllerBase
       // save to database
       await _chatDb.Pictures.AddAsync(picture);
       await _chatDb.SaveChangesAsync();
+      await saveImageTransaction.CommitAsync();
+
+      var pictureLookup = new PictureLookup
+      {
+        PictureId = picture.Id,
+        MachineName = _fileAPIOptions.ServiceName
+      };
+
+      await _chatDb.PictureLookups.AddAsync(pictureLookup);
+      await _chatDb.SaveChangesAsync();
+
       _logger.LogInformation($"Image {picture.NameOfFile} saved to database");
+
       return Ok();
     }
     catch (Exception ex)
     {
+      await saveImageTransaction.RollbackAsync();
+
       _logger.LogError($"There was an error saving your image {ex.Message}");
       return StatusCode(500, "Internal server error in saving image to database");
     }
@@ -72,6 +89,32 @@ public class ImageController : ControllerBase
     {
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
       var targetPicture = _chatDb.Pictures.Find(imageId);
+      // check if picture belongs to this service
+      var pictureLookup = await _chatDb.PictureLookups.FirstOrDefaultAsync(p => p.PictureId == imageId);
+      if (pictureLookup == null)
+      {
+        _logger.LogError($"Image {targetPicture?.NameOfFile} could not be found in database");
+        return StatusCode(404, "Image couldn't be found in other services");
+      }
+
+      if (pictureLookup.MachineName != _fileAPIOptions.ServiceName)
+      {
+        // get the service name from the picture lookup
+        _logger.LogInformation($"Image {targetPicture?.NameOfFile} does not belong to this service");
+        // call the other service to get the image
+        var client = new HttpClient()
+        {
+          BaseAddress = new Uri($"http://{pictureLookup.MachineName}:8080")
+        };
+
+        var response = await client.GetStringAsync($"/api/image/{imageId}");
+        if (response == null)
+        {
+          return StatusCode(404, "Image couldn't be found in other services");
+        }
+        return response;
+      }
+
       if (_redisService.KeyExists(targetPicture?.NameOfFile))
       {
         _logger.LogInformation($"Image {targetPicture?.NameOfFile} retrieved from redis");
@@ -81,12 +124,18 @@ public class ImageController : ControllerBase
       // Construct the file path
       string filePath = $"/app/images/{targetPicture?.NameOfFile ?? throw new FileNotFoundException("Target image was not found")}.png";
 
-      return _fileService.RetrieveImageFromDrive(filePath);
+      var base64 = _fileService.RetrieveImageFromDrive(filePath);
+      return await MakeDataUri(base64, "png");
     }
     catch (Exception ex)
     {
       _logger.LogError($"There was an error saving your image {ex.Message}");
       return StatusCode(500, "Internal server error in retrieving image");
     }
+  }
+
+  public Task<string> MakeDataUri(string base64Image, string imageType)
+  {
+    return Task.FromResult($"data:image/{imageType};base64,{base64Image}");
   }
 }
