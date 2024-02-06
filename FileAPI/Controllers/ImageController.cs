@@ -15,7 +15,6 @@ public class ImageController : ControllerBase
 {
   private readonly ChatDbContext _chatDb;
   private readonly ILogger _logger;
-  private readonly IConfiguration _configuration;
   private readonly IFileService _fileService;
   private readonly FileAPIOptions _fileAPIOptions;
 
@@ -27,7 +26,6 @@ public class ImageController : ControllerBase
   {
     _chatDb = chatDb;
     _logger = logger;
-    _configuration = configuration;
     _fileService = fileService;
     _fileAPIOptions = fileAPIOptions;
   }
@@ -82,6 +80,28 @@ public class ImageController : ControllerBase
     {
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
       var targetPicture = _chatDb.Pictures.Find(imageId);
+      // check if picture belongs to this service
+      var pictureLookup = _chatDb.PictureLookups.FirstOrDefault(p => p.PictureId == imageId);
+      if (pictureLookup == null)
+      {
+        _logger.LogError($"Image {targetPicture?.NameOfFile} does not belong to this service");
+        return StatusCode(404, "Image not found");
+      }
+
+      if (pictureLookup.MachineName != _fileAPIOptions.ServiceName)
+      {
+        // get the service name from the picture lookup
+        _logger.LogError($"Image {targetPicture?.NameOfFile} does not belong to this service");
+        // call the other service to get the image
+        var client = new HttpClient()
+        {
+          BaseAddress = new Uri($"http://{pictureLookup.MachineName}:8080")
+        };
+
+        var response = await client.GetStringAsync($"/api/images/{imageId}");
+        return response;
+      }
+
       // Construct the file path
       string filePath = $"/app/images/{targetPicture?.NameOfFile ?? throw new FileNotFoundException("Target image was not found")}.png";
 
