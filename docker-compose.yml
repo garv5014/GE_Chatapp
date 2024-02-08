@@ -72,6 +72,31 @@ services:
     ports:
       - "5153:8080" 
 
+  ge_fileservice-3: 
+    image: ${DOCKER_REGISTRY-}gefileservice
+    user: 0:0
+    container_name: ge_fileservice-3
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          su app
+          dotnet FileAPI.dll
+    build:
+      context: .
+      dockerfile: FileAPI/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+      - FileAPIOptions__CompressImages=true
+      - FileAPIOptions__APIDelayInSeconds=0
+      - ASPNETCORE_ENVIRONMENT=Development
+      - FileAPIOptions__ServiceName=ge_fileservice-3
+    volumes:
+      - images_store3:/app/images
+    ports:
+      - "5153:8080" 
+
   nginx:
     image: nginx:latest
     container_name: reverse_proxy
@@ -162,5 +187,7 @@ services:
 volumes:
   chat_db_data:
   images_store1:
-  images_store2:  
+  images_store2: 
+  images_store3:  
+      
       
