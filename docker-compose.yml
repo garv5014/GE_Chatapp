@@ -22,6 +22,22 @@ services:
       - ge_fileservice-1
       - ge_fileservice-2
 
+  ge_redundancyservice:
+    image: ${DOCKER_REGISTRY-}redundancyservice
+    container_name: ge_redundancyservice
+    build:
+      context: .
+      dockerfile: RedundancyService/Dockerfile
+    environment:
+      - ConnectionString=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
+      - FILE_SERIVCE_NAMES=ge_fileservice-1,ge_fileservice-2,ge_fileservice-3
+      - SLEEP_INTERVAL=120
+    depends_on:
+      - ge_chatapp
+      - ge_fileservice-1
+      - ge_fileservice-2
+      - ge_fileservice-3
+
   ge_fileservice-1: 
     image: ${DOCKER_REGISTRY-}gefileservice
     user: 0:0
@@ -95,7 +111,7 @@ services:
     volumes:
       - images_store3:/app/images
     ports:
-      - "5153:8080" 
+      - "5154:8080" 
 
   nginx:
     image: nginx:latest

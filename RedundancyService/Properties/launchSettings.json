@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RedundancyService": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
