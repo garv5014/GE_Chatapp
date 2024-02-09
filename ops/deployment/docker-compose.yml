@@ -36,7 +36,6 @@ services:
     restart: always 
 
   ge_redundancyservice:
-    image: ${DOCKER_REGISTRY-}redundancyservice
     container_name: ge_redundancyservice
     build:
       context: .
@@ -98,7 +97,6 @@ services:
       - /home/garrett/images/service_2:/app/images
 
   ge_fileservice-3: 
-    image: ${DOCKER_REGISTRY-}gefileservice
     user: 0:0
     container_name: ge_fileservice-3
     entrypoint:
