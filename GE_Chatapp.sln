@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chatapp.Shared", "Chatapp.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Integration_Test", "Integration_Test\Integration_Test.csproj", "{9526BDF6-767D-4AD1-9323-B6FEDD715F12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileAPI", "FileAPI\FileAPI.csproj", "{4CC23B14-F353-428D-9CE2-3991D5614D0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileAPI", "FileAPI\FileAPI.csproj", "{4CC23B14-F353-428D-9CE2-3991D5614D0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedundancyService", "RedundancyService\RedundancyService.csproj", "{90C6FA80-907F-4768-BAA0-58F10C6DB719}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,14 @@ Global
 		{4CC23B14-F353-428D-9CE2-3991D5614D0C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4CC23B14-F353-428D-9CE2-3991D5614D0C}.Release|x64.ActiveCfg = Release|Any CPU
 		{4CC23B14-F353-428D-9CE2-3991D5614D0C}.Release|x64.Build.0 = Release|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Debug|x64.Build.0 = Debug|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Release|x64.ActiveCfg = Release|Any CPU
+		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

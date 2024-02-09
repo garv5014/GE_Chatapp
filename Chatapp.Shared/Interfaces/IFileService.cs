@@ -10,6 +10,12 @@ public interface IFileService
   /// <returns></returns>
   string SaveImageToDrive(string base64Image);
   /// <summary>
+  /// Save a copy of the image to the drive with the given name
+  /// </summary>
+  /// <param name="base64Image"></param>
+  /// <param name="name"></param>
+  bool SaveCopyToDrive(string base64Image, string name);
+  /// <summary>
   /// Take in image
   /// </summary>
   /// <param name="imageId"></param>
