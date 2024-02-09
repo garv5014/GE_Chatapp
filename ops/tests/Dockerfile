@@ -11,6 +11,7 @@ COPY GE_Chatapp/GE_Chatapp.Client/*.csproj ./GE_Chatapp/GE_Chatapp.Client/
 COPY Chatapp.Shared/*.csproj ./Chatapp.Shared/
 COPY Unit_Test/*.csproj ./Unit_Test/
 COPY Integration_Test/*.csproj ./Integration_Test/
+COPY RedundancyService/*.csproj ./RedundancyService/
 COPY FileAPI/*.csproj ./FileAPI/
 RUN dotnet restore GE_Chatapp.sln
 
