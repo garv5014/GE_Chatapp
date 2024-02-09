@@ -107,7 +107,7 @@ services:
           su app
           dotnet FileAPI.dll
     build:
-      context: .../../
+      context: ../../
       dockerfile: FileAPI/Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
