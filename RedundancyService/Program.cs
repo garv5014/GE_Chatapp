@@ -22,6 +22,9 @@ optionsBuilder.EnableSensitiveDataLogging();
 var db = new ChatDbContext(options: optionsBuilder.Options);
 List<string> listOfServices = new List<string>();
 listOfServices = listOfFileServiceURLs.Split(',').ToList();
+Console.WriteLine(listOfServices.Count);
+Console.WriteLine(listOfServices.First());
+
 
 while (true)
 {
@@ -32,6 +35,7 @@ while (true)
     .Where(g => g.Count() == 1)
     .Select(g => g.First())
     .ToListAsync();
+  Console.WriteLine(uniquePictures.Count);
 
   // for each picture send to and image api /replicate endpoint that is not its owner for replication
   foreach (var image in uniquePictures)
@@ -41,10 +45,13 @@ while (true)
     var filteredList = listOfServices.Where(e => e != image.MachineName).ToList();
     int randomServiceIndex = random.Next(0, filteredList.Count);
 
-    HttpClient client = new HttpClient();
-    client.BaseAddress = new Uri($"http://{filteredList[randomServiceIndex]}:8080");
-    await client.PostAsync($"/replicate/{image.PictureId}", null);
-
+    HttpClient client = new HttpClient()
+    {
+      BaseAddress = new Uri($"http://{filteredList[randomServiceIndex]}:8080")
+    };
+    Console.WriteLine(client.BaseAddress);
+    var res = await client.PostAsync($"/api/image/replicate/{image.PictureId}", null);
+    Console.WriteLine(res.StatusCode);
   }
 
   Console.WriteLine("Hello, World!");

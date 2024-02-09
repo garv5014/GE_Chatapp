@@ -36,10 +36,30 @@ public class FileService : IFileService
     return base64String;
   }
 
+  public bool SaveCopyToDrive(string base64Image, string name)
+  {
+    try
+    {
+      _logger.LogInformation($"Copying image {name} to drive");
+
+      Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000).Wait();
+      byte[] bytes = Convert.FromBase64String(base64Image);
+      string filePath = Path.Combine("/app/images", name + ".png");
+
+      File.WriteAllBytes(filePath, bytes); // Write the file to the filesystem
+
+      return true;
+    }
+    catch
+    {
+      return false;
+    }
+  }
 
   public string SaveImageToDrive(string base64Image)
   {
     var NameOfFile = Guid.NewGuid().ToString();
+
     // save to drive
     _logger.LogInformation($"Saving image {NameOfFile} to drive");
     Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000).Wait();

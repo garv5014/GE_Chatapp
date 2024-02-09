@@ -82,6 +82,63 @@ public class ImageController : ControllerBase
     }
   }
 
+  [HttpPost("replicate/{imageId}")]
+  public async Task<ActionResult> ReplicateImage([FromRoute] int imageId)
+  {
+    try
+    {
+      var targetPicture = await _chatDb.Pictures.FindAsync(imageId);
+      // check if picture belongs to this service
+      var pictureLookup = await _chatDb.PictureLookups.FirstOrDefaultAsync(p => p.PictureId == imageId);
+      if (pictureLookup == null || string.IsNullOrEmpty(targetPicture?.NameOfFile))
+      {
+        _logger.LogError($"Image {targetPicture?.NameOfFile} could not be found in database");
+        return StatusCode(404, "Image couldn't be found in other services");
+      }
+
+      if (pictureLookup.MachineName != _fileAPIOptions.ServiceName)
+      {
+
+        // get the service name from the picture lookup
+        _logger.LogInformation($"Image {targetPicture?.NameOfFile} does not belong to this service");
+        // call the other service to get the image
+        var client = new HttpClient()
+        {
+          BaseAddress = new Uri($"http://{pictureLookup.MachineName}:8080")
+        };
+
+        var response = await client.GetStringAsync($"/api/image/{imageId}");
+        var imageBase64 = response.Replace("data:image/png;base64,", "");
+
+        var successfullyCopied = _fileService.SaveCopyToDrive(imageBase64, targetPicture?.NameOfFile);
+
+        if (!successfullyCopied)
+        {
+          return StatusCode(500, "Internal server error in replicating image");
+        }
+
+        var newLookup = new PictureLookup
+        {
+          PictureId = imageId,
+          MachineName = _fileAPIOptions.ServiceName
+        };
+
+        await _chatDb.PictureLookups.AddAsync(newLookup);
+        await _chatDb.SaveChangesAsync();
+
+        // save to database new entry for replicated image for this service 
+        return Ok();
+      }
+
+      return StatusCode(500, "Image is already on this machine");
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"There was an error saving your image {ex.Message}");
+      return StatusCode(500, "Internal server error in replicating image");
+    }
+  }
+
   [HttpGet("{imageId}")]
   public async Task<ActionResult<string>> RetrieveImageFromDrive([FromRoute] int imageId)
   {
@@ -90,21 +147,25 @@ public class ImageController : ControllerBase
       await Task.Delay(_fileAPIOptions.APIDelayInSeconds * 1000);
       var targetPicture = _chatDb.Pictures.Find(imageId);
       // check if picture belongs to this service
-      var pictureLookup = await _chatDb.PictureLookups.FirstOrDefaultAsync(p => p.PictureId == imageId);
-      if (pictureLookup == null)
+      var pictureLookups = await _chatDb.PictureLookups.Where(p => p.PictureId == imageId).ToListAsync();
+      if (pictureLookups == null)
       {
         _logger.LogError($"Image {targetPicture?.NameOfFile} could not be found in database");
         return StatusCode(404, "Image couldn't be found in other services");
       }
 
-      if (pictureLookup.MachineName != _fileAPIOptions.ServiceName)
+      Random random = new Random();
+      var ranNumIndex = random.Next(0, pictureLookups.Count);
+      var machineName = pictureLookups[ranNumIndex].MachineName;
+      _logger.LogInformation($"Get Image {targetPicture?.NameOfFile} from {machineName}");
+      if (machineName != _fileAPIOptions.ServiceName)
       {
         // get the service name from the picture lookup
         _logger.LogInformation($"Image {targetPicture?.NameOfFile} does not belong to this service");
         // call the other service to get the image
         var client = new HttpClient()
         {
-          BaseAddress = new Uri($"http://{pictureLookup.MachineName}:8080")
+          BaseAddress = new Uri($"http://{machineName}:8080")
         };
 
         var response = await client.GetStringAsync($"/api/image/{imageId}");
