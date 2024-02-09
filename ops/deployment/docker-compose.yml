@@ -35,6 +35,21 @@ services:
       - FileStoreAPIAddress=https://gechatapp.duckdns.org:1360/api
     restart: always 
 
+  ge_redundancyservice:
+    image: ${DOCKER_REGISTRY-}redundancyservice
+    container_name: ge_redundancyservice
+    build:
+      context: .
+      dockerfile: RedundancyService/Dockerfile
+    environment:
+      - ConnectionString=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - FILE_SERIVCE_NAMES=ge_fileservice-1,ge_fileservice-2,ge_fileservice-3
+      - SLEEP_INTERVAL=30
+    depends_on:
+      - ge_chatapp
+      - ge_fileservice-1
+      - ge_fileservice-2
+      - ge_fileservice-3
 
   ge_fileservice-1: 
     user: 0:0
@@ -81,6 +96,29 @@ services:
       - FileAPIOptions__ServiceName=ge_fileservice-2
     volumes:
       - /home/garrett/images/service_2:/app/images
+
+  ge_fileservice-3: 
+    image: ${DOCKER_REGISTRY-}gefileservice
+    user: 0:0
+    container_name: ge_fileservice-3
+    entrypoint:
+        - /bin/bash
+        - -c
+        - |
+          chown -R 1000:1000 /app/images
+          su app
+          dotnet FileAPI.dll
+    build:
+      context: .
+      dockerfile: FileAPI/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - FileAPIOptions__CompressImages=true
+      - FileAPIOptions__APIDelayInSeconds=1
+      - ASPNETCORE_ENVIRONMENT=Development
+      - FileAPIOptions__ServiceName=ge_fileservice-3
+    volumes:
+      - /home/garrett/images/service_3:/app/images
 
   swag:
     image: lscr.io/linuxserver/swag
