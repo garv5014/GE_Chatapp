@@ -4,7 +4,7 @@ using Chatapp.Shared.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
-string listOfFileServiceURLs = Environment.GetEnvironmentVariable("FILE_SERIVCE_NAMES");
+string? listOfFileServiceURLs = Environment.GetEnvironmentVariable("FILE_SERIVCE_NAMES");
 
 int sleepInterval = int.Parse(Environment.GetEnvironmentVariable("SLEEP_INTERVAL"));
 if (listOfFileServiceURLs == null)
@@ -12,7 +12,7 @@ if (listOfFileServiceURLs == null)
   throw new Exception("Requires a list of serviceURLS");
 }
 
-string connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+string? connectionString = Environment.GetEnvironmentVariable("ConnectionString");
 
 var optionsBuilder = new DbContextOptionsBuilder<ChatDbContext>();
 optionsBuilder.UseNpgsql(connectionString);
