@@ -2,6 +2,7 @@
 using Chatapp.Shared.Entities;
 using Chatapp.Shared.Interfaces;
 using Chatapp.Shared.Simple_Models;
+using Chatapp.Shared.Telemetry;
 
 using FileAPI.Options;
 
@@ -70,7 +71,7 @@ public class ImageController : ControllerBase
       await _chatDb.SaveChangesAsync();
 
       _logger.LogInformation($"Image {picture.NameOfFile} saved to database");
-
+      DiagnosticConfig.totalPhotos.Add(1);
       return Ok();
     }
     catch (Exception ex)
@@ -127,6 +128,7 @@ public class ImageController : ControllerBase
         await _chatDb.SaveChangesAsync();
 
         // save to database new entry for replicated image for this service 
+        DiagnosticConfig.backedUpPhotos.Add(1, new KeyValuePair<string, object>("service", _fileAPIOptions.ServiceName));
         return Ok();
       }
 

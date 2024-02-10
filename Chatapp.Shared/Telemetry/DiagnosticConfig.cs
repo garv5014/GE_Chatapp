@@ -7,6 +7,8 @@ public static class DiagnosticConfig
 {
   public static string ServiceName = "ge_chatapp";
   public static Meter Meter = new(ServiceName);
+  public static Counter<int> backedUpPhotos = Meter.CreateCounter<int>("backedup.photos");
+  public static Counter<int> totalPhotos = Meter.CreateCounter<int>("total.photos");
   public static Counter<int> userCount = Meter.CreateCounter<int>("users.count");
   public static Counter<int> messageCount = Meter.CreateCounter<int>("messages.count");
   public static Counter<int> messageWithImageCount = Meter.CreateCounter<int>("message.with.image");

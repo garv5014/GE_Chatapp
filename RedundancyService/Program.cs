@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 using Chatapp.Shared;
@@ -26,37 +27,7 @@ if (listOfFileServiceURLs == null)
 {
   throw new Exception("Requires a list of serviceURLS");
 }
-
-string? connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-
-var optionsBuilder = new DbContextOptionsBuilder<ChatDbContext>();
-optionsBuilder.UseNpgsql(connectionString);
-optionsBuilder.EnableDetailedErrors();
-optionsBuilder.EnableSensitiveDataLogging();
-
-var db = new ChatDbContext(options: optionsBuilder.Options);
-List<string> listOfServices = new List<string>();
-listOfServices = listOfFileServiceURLs.Split(',').ToList();
-
 var resourceBuilder = ResourceBuilder.CreateDefault().AddService("ChatAppConsole");
-
-using var tracerProvider = Sdk.CreateTracerProviderBuilder()
-    .SetResourceBuilder(resourceBuilder)
-    .AddEntityFrameworkCoreInstrumentation()
-    .AddOtlpExporter(options =>
-    {
-      options.Endpoint = new Uri(collectorUri);
-    })
-    .Build();
-
-using var meterProvider = Sdk.CreateMeterProviderBuilder()
-    .SetResourceBuilder(resourceBuilder)
-     .AddMeter("RedundancyService.Meter")
-    .AddOtlpExporter(options =>
-    {
-      options.Endpoint = new Uri(collectorUri);
-    })
-    .Build();
 
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
@@ -73,43 +44,87 @@ using var loggerFactory = LoggerFactory.Create(builder =>
 
 var logger = loggerFactory.CreateLogger<Program>();
 logger.LogInformation("Start redundancy");
-var meter = new Meter("RedundancyService.Meter");
 
-int unreplicatedPictures = 0;
-
-var gauge = meter.CreateObservableGauge("unreplicated.pictures", () =>
+try
 {
-  return new Measurement<double>(unreplicatedPictures);
-});
 
-while (true)
-{
-  Task.Delay(sleepInterval * 1000).Wait();
-  //get list of non-replicated pictures
-  List<PictureLookup> uniquePictures = await db.PictureLookups
-    .GroupBy(e => e.PictureId)
-    .Where(g => g.Count() == 1)
-    .Select(g => g.First())
-    .ToListAsync();
-  Console.WriteLine(uniquePictures.Count);
-  unreplicatedPictures = uniquePictures.Count;
 
-  // for each picture send to and image api /replicate endpoint that is not its owner for replication
-  foreach (var image in uniquePictures)
+  string? connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+
+  var optionsBuilder = new DbContextOptionsBuilder<ChatDbContext>();
+  optionsBuilder.UseNpgsql(connectionString);
+  optionsBuilder.EnableDetailedErrors();
+  optionsBuilder.EnableSensitiveDataLogging();
+
+  var db = new ChatDbContext(options: optionsBuilder.Options);
+  List<string> listOfServices = new List<string>();
+  listOfServices = listOfFileServiceURLs.Split(',').ToList();
+
+
+  using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+      .SetResourceBuilder(resourceBuilder)
+      .AddEntityFrameworkCoreInstrumentation()
+      .AddOtlpExporter(options =>
+      {
+        options.Endpoint = new Uri(collectorUri);
+      })
+      .Build();
+
+  using var meterProvider = Sdk.CreateMeterProviderBuilder()
+      .SetResourceBuilder(resourceBuilder)
+       .AddMeter("RedundancyService.Meter")
+      .AddOtlpExporter(options =>
+      {
+        options.Endpoint = new Uri(collectorUri);
+      })
+      .Build();
+
+
+  var meter = new Meter("RedundancyService.Meter");
+
+  int unreplicatedPictures = 0;
+
+  var gauge = meter.CreateObservableGauge("unreplicated.pictures", () =>
   {
-    Random random = new Random();
+    return new Measurement<double>(unreplicatedPictures);
+  });
 
-    var filteredList = listOfServices.Where(e => e != image.MachineName).ToList();
-    int randomServiceIndex = random.Next(0, filteredList.Count);
+  var activitySource = new ActivitySource("RedundancyService");
 
-    HttpClient client = new HttpClient()
+  while (true)
+  {
+    Task.Delay(sleepInterval * 1000).Wait();
+    logger.LogInformation("Starting redundancy job");
+    //get list of non-replicated pictures
+    List<PictureLookup> uniquePictures = await db.PictureLookups
+      .GroupBy(e => e.PictureId)
+      .Where(g => g.Count() == 1)
+      .Select(g => g.First())
+      .ToListAsync();
+    Console.WriteLine(uniquePictures.Count);
+    unreplicatedPictures = uniquePictures.Count;
+
+    // for each picture send to and image api /replicate endpoint that is not its owner for replication
+    foreach (var image in uniquePictures)
     {
-      BaseAddress = new Uri($"http://{filteredList[randomServiceIndex]}:8080")
-    };
-    Console.WriteLine(client.BaseAddress);
-    var res = await client.PostAsync($"/api/image/replicate/{image.PictureId}", null);
-    Console.WriteLine(res.StatusCode);
-  }
+      using var act = activitySource.StartActivity("ReplicateImage");
+      Random random = new Random();
 
-  Console.WriteLine("Hello, World!");
+      var filteredList = listOfServices.Where(e => e != image.MachineName).ToList();
+      int randomServiceIndex = random.Next(0, filteredList.Count);
+
+      HttpClient client = new HttpClient()
+      {
+        BaseAddress = new Uri($"http://{filteredList[randomServiceIndex]}:8080")
+      };
+      var res = await client.PostAsync($"/api/image/replicate/{image.PictureId}", null);
+
+    }
+    logger.LogInformation("Redundancy job completed");
+  }
+}
+catch (Exception)
+{
+  logger.LogError("In the redundancy service check internal logs for more information");
+  throw;
 }
