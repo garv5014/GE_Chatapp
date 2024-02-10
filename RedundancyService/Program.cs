@@ -1,10 +1,25 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.Diagnostics.Metrics;
+
 using Chatapp.Shared;
 using Chatapp.Shared.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+using OpenTelemetry;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 string? listOfFileServiceURLs = Environment.GetEnvironmentVariable("FILE_SERIVCE_NAMES");
+
+string? collectorUri = Environment.GetEnvironmentVariable("COLLECTOR_URL");
+if (string.IsNullOrEmpty(collectorUri))
+{
+  throw new Exception("CollectorURL environment variable is not set.");
+}
 
 int sleepInterval = int.Parse(Environment.GetEnvironmentVariable("SLEEP_INTERVAL"));
 if (listOfFileServiceURLs == null)
@@ -22,9 +37,50 @@ optionsBuilder.EnableSensitiveDataLogging();
 var db = new ChatDbContext(options: optionsBuilder.Options);
 List<string> listOfServices = new List<string>();
 listOfServices = listOfFileServiceURLs.Split(',').ToList();
-Console.WriteLine(listOfServices.Count);
-Console.WriteLine(listOfServices.First());
 
+var resourceBuilder = ResourceBuilder.CreateDefault().AddService("ChatAppConsole");
+
+using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+    .SetResourceBuilder(resourceBuilder)
+    .AddEntityFrameworkCoreInstrumentation()
+    .AddOtlpExporter(options =>
+    {
+      options.Endpoint = new Uri(collectorUri);
+    })
+    .Build();
+
+using var meterProvider = Sdk.CreateMeterProviderBuilder()
+    .SetResourceBuilder(resourceBuilder)
+     .AddMeter("RedundancyService.Meter")
+    .AddOtlpExporter(options =>
+    {
+      options.Endpoint = new Uri(collectorUri);
+    })
+    .Build();
+
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+  builder.AddOpenTelemetry(options =>
+  {
+    options.SetResourceBuilder(resourceBuilder)
+           .AddOtlpExporter(otlpOptions =>
+           {
+             otlpOptions.Endpoint = new Uri(collectorUri);
+           });
+    // Additional configuration as needed
+  });
+});
+
+var logger = loggerFactory.CreateLogger<Program>();
+logger.LogInformation("Start redundancy");
+var meter = new Meter("RedundancyService.Meter");
+
+int unreplicatedPictures = 0;
+
+var gauge = meter.CreateObservableGauge("unreplicated.pictures", () =>
+{
+  return new Measurement<double>(unreplicatedPictures);
+});
 
 while (true)
 {
@@ -36,6 +92,7 @@ while (true)
     .Select(g => g.First())
     .ToListAsync();
   Console.WriteLine(uniquePictures.Count);
+  unreplicatedPictures = uniquePictures.Count;
 
   // for each picture send to and image api /replicate endpoint that is not its owner for replication
   foreach (var image in uniquePictures)

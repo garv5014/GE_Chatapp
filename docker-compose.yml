@@ -31,7 +31,8 @@ services:
     environment:
       - ConnectionString=Host=postgres;Port=5432;Database=chatdb;Username=admin;Password=password!
       - FILE_SERIVCE_NAMES=ge_fileservice-1,ge_fileservice-2,ge_fileservice-3
-      - SLEEP_INTERVAL=5
+      - SLEEP_INTERVAL=30
+      - COLLECTOR_URL=http://ge_otel_collector:4317
     depends_on:
       - ge_chatapp
       - ge_fileservice-1
