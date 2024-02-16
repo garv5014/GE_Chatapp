@@ -1,24 +1,29 @@
 ﻿@page "/chat"
 @inject IChatService ChatService
+@inject NavigationManager Navigation
+@inject SignalREnv SignalRENV
 @rendermode InteractiveWebAssembly
+@implements IAsyncDisposable
+@using Microsoft.AspNetCore.SignalR.Client
 @using Chatapp.Shared
 @using Chatapp.Shared.Interfaces
 @using Chatapp.Shared.Services
 @using Chatapp.Shared.Entities
 @using Chatapp.Shared.Simple_Models
+@using System.Timers
 
 <h1>Chat Room</h1>
 
 <div class="d-flex flex-column" style="height: 500px">
   <div class="overflow-scroll" style="height: 90%">
     <ul class="list-unstyled">
-      @if (messages == null)
+      @if (chatMessages == null)
       {
         <p>No Messages Yet</p>
       }
       else
       {
-        @foreach (var message in messages)
+        @foreach (var message in chatMessages)
         {
           <li class="w-25">
             <div class="row">
@@ -39,13 +44,23 @@
             </div>
           </li>
         }
+        @foreach (var user in typingUsers)
+        {
+          @if(user.Value)
+          {           
+            <li class="w-25">
+              <p class="col-auto my-0 fs-6 fw-bold">@user.Key</p>
+              <p class="col-auto my-0 fs-6">Typing...</p>
+            </li>
+          }
+        }
       }
     </ul>
   </div>
 
     <div class='text-center container '>
         <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
-        <input type="text" @bind="Message" placeholder="Type a message" class="form-control" />
+        <input type="text" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
         <div class="row">
             <div class="col-9">
                 <InputFile OnChange="@LoadFiles" multiple accept=".png" class="form-control"/>
@@ -61,8 +76,13 @@
 @code {
     public string Message { get; set; } = "";
     public string UserName { get; set; } = "";
-    List<MessageWithImages> messages { get; set; } = new List<MessageWithImages>();
+    public bool isDisabled => string.IsNullOrWhiteSpace(UserName);
+    public Timer? typingTimer { get; set; }
+
+    Dictionary<string, bool> typingUsers { get; set; } = new Dictionary<string, bool>();
+    List<MessageWithImages> chatMessages { get; set; } = new List<MessageWithImages>();
     List<string> dataURIs { get; set; } = new List<string>();
+    private HubConnection? hubConnection;
 
     public async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -82,11 +102,91 @@
 
     protected override async Task OnInitializedAsync()
     {
+
         Console.WriteLine("Initializing chat");
-        messages = await ChatService.GetMessagesAsync();
-        Console.WriteLine("here are the messages", messages);
+        chatMessages = await ChatService.GetMessagesAsync();
+        Console.WriteLine("here are the messages", chatMessages);
+
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(SignalRENV.chatHubURL)
+        .Build(); 
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            Console.WriteLine("connected to hub");
+        });
+
+        hubConnection.On<string>("ReceiveStartTyping", (user) =>
+        {
+            if (typingUsers.ContainsKey(user))
+            {
+                typingUsers[user] = true;
+            }
+            else
+            {
+                typingUsers.Add(user, true);
+            }
+            StateHasChanged();
+        });
+
+        hubConnection.On<string>("ReceiveStopTyping", (user) =>
+        {
+            if (typingUsers.ContainsKey(user))
+            {
+                typingUsers[user] = false;
+            }
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SendMessage");
+        }
     }
 
+    private async Task stopTyping()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("StopTyping", UserName);
+        }
+        typingTimer?.Stop();
+    }
+
+    async Task onMessageChange(ChangeEventArgs e)
+    {
+        typingTimer?.Dispose();
+        typingTimer = new Timer(1000);
+
+        typingTimer.Elapsed += async (_, _) =>
+        {
+            if (hubConnection is not null)
+            {
+                await hubConnection.SendAsync("StopTyping", UserName);
+            }
+            await stopTyping();
+
+        };
+        typingTimer?.Start();
+        Message = e.Value?.ToString() ?? "";
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("StartTyping", UserName);
+        }
+
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
     public async Task SendMessage()
     {
         Console.WriteLine("Sending message");

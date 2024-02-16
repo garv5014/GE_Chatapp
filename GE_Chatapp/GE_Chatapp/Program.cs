@@ -79,7 +79,11 @@ public partial class Program
 
     builder.Services.AddScoped<IChatService, ChatService>(sp => new ChatService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.ServerAPI"), sp.GetRequiredService<IFileAPIService>()));
 
-
+    builder.Services.AddSingleton<SignalREnv>(new SignalREnv()
+    {
+      IsServer = true,
+      chatHubURL = builder.Configuration["ApiBaseAddress"] + "/ws/chathub" ?? throw new Exception("ApiBaseAddress not found ")
+    });
 
     builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("My.FileAPI"));
 
