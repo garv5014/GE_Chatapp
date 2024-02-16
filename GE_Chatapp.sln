@@ -17,15 +17,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unit_Test", "Unit_Test\Unit_Test.csproj", "{D3D5D358-AF52-47E5-BED1-99C4E42D9363}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5BC42988-E2A0-446D-84A2-D5FD8215AD72}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chatapp.Shared", "Chatapp.Shared\Chatapp.Shared.csproj", "{FEDB8729-EEBB-4354-80AE-D69891A812AB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Integration_Test", "Integration_Test\Integration_Test.csproj", "{9526BDF6-767D-4AD1-9323-B6FEDD715F12}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileAPI", "FileAPI\FileAPI.csproj", "{4CC23B14-F353-428D-9CE2-3991D5614D0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedundancyService", "RedundancyService\RedundancyService.csproj", "{90C6FA80-907F-4768-BAA0-58F10C6DB719}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedundancyService", "RedundancyService\RedundancyService.csproj", "{90C6FA80-907F-4768-BAA0-58F10C6DB719}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR", "SignalR\SignalR.csproj", "{2B46D41F-EE73-431A-947B-46E70A5D01D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,14 +59,6 @@ Global
 		{D3D5D358-AF52-47E5-BED1-99C4E42D9363}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D3D5D358-AF52-47E5-BED1-99C4E42D9363}.Release|x64.ActiveCfg = Release|Any CPU
 		{D3D5D358-AF52-47E5-BED1-99C4E42D9363}.Release|x64.Build.0 = Release|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Debug|x64.Build.0 = Debug|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Release|x64.ActiveCfg = Release|Any CPU
-		{5BC42988-E2A0-446D-84A2-D5FD8215AD72}.Release|x64.Build.0 = Release|Any CPU
 		{FEDB8729-EEBB-4354-80AE-D69891A812AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FEDB8729-EEBB-4354-80AE-D69891A812AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEDB8729-EEBB-4354-80AE-D69891A812AB}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -99,6 +91,14 @@ Global
 		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Release|Any CPU.Build.0 = Release|Any CPU
 		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Release|x64.ActiveCfg = Release|Any CPU
 		{90C6FA80-907F-4768-BAA0-58F10C6DB719}.Release|x64.Build.0 = Release|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Debug|x64.Build.0 = Debug|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Release|x64.ActiveCfg = Release|Any CPU
+		{2B46D41F-EE73-431A-947B-46E70A5D01D0}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
