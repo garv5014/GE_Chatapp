@@ -109,7 +109,9 @@
 
         hubConnection = new HubConnectionBuilder()
         .WithUrl(SignalRENV.chatHubURL)
-        .Build(); 
+        .Build();
+
+        Console.WriteLine($"Here is the hub url {SignalRENV.chatHubURL}");
 
         hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
         {
