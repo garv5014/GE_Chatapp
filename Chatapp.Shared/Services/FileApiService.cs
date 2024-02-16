@@ -15,13 +15,12 @@ public class FileApiService : IFileAPIService
   }
   public async Task PostImageToFileApi(SaveImageRequest imageRequest)
   {
-    await _httpClient.PostAsJsonAsync<SaveImageRequest>("api/image/save", imageRequest);
+    await _httpClient.PostAsJsonAsync<SaveImageRequest>("/api/image/save", imageRequest);
   }
 
   public async Task<string> RetrieveImageFromFileApi(string imageId)
   {
-    Console.WriteLine($"api/image/{imageId}");
     Console.WriteLine($"here is the httpclient {_httpClient.BaseAddress}");
-    return await _httpClient.GetStringAsync($"api/image/{imageId}");
+    return await _httpClient.GetStringAsync($"/api/image/{imageId}");
   }
 }

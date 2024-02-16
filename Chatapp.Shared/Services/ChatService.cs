@@ -18,12 +18,12 @@ public class ChatService : IChatService
 
   public async Task SendMessageAsync(MessageWithImages message)
   {
-    await _httpClient.PostAsJsonAsync("api/chat", message);
+    await _httpClient.PostAsJsonAsync("/api/chat", message);
   }
 
   public async Task<List<MessageWithImages>> GetMessagesAsync()
   {
-    var messages = await _httpClient.GetFromJsonAsync<List<Message>>("api/chat") ?? throw new Exception("No data returned from the api");
+    var messages = await _httpClient.GetFromJsonAsync<List<Message>>("/api/chat") ?? throw new Exception("No data returned from the api");
     // for each message, get the images for the message
     var messagesWithImages = new List<MessageWithImages>();
     foreach (var message in messages)
