@@ -15,7 +15,6 @@ if (builder.HostEnvironment.IsDevelopment())
     IsServer = false,
     chatHubURL = "http://localhost:5202/ws/chatHub"
   });
-
 }
 else
 {

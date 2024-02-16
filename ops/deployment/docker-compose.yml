@@ -37,7 +37,6 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - ApiBaseAddress=https://gechatapp.duckdns.org:1360
       - CollectorURL=http://ge_otel_collector:4317
-      - ASPNETCORE_ENVIRONMENT=Development
       - FileStoreAPIAddress=https://gechatapp.duckdns.org:1360
     restart: always 
 
