@@ -14,6 +14,12 @@ services:
       - /home/garrett/chatdata/data:/var/lib/postgresql/data
       - ../../chatdb/initscripts:/docker-entrypoint-initdb.d
     restart: always
+
+  websocket:
+    container_name: websocket
+    build:
+      context: ../../
+      dockerfile: SignalR/Dockerfile
      
   ge_chatapp:
     container_name: ge_chatapp
