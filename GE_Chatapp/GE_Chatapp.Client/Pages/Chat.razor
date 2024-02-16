@@ -44,6 +44,16 @@
             </div>
           </li>
         }
+        @foreach (var user in typingUsers)
+        {
+          @if(user.Value)
+          {           
+            <li class="w-25">
+              <p class="col-auto my-0 fs-6 fw-bold">@user.Key</p>
+              <p class="col-auto my-0 fs-6">Typing...</p>
+            </li>
+          }
+        }
       }
     </ul>
   </div>
@@ -116,6 +126,7 @@
             {
                 typingUsers.Add(user, true);
             }
+            StateHasChanged();
         });
 
         hubConnection.On<string>("ReceiveStopTyping", (user) =>
@@ -124,6 +135,7 @@
             {
                 typingUsers[user] = false;
             }
+            StateHasChanged();
         });
 
         await hubConnection.StartAsync();
