@@ -5,5 +5,8 @@ namespace Chatapp.Shared.Interfaces;
 public interface IChatService
 {
   Task<List<MessageWithImages>> GetMessagesAsync();
+
   Task SendMessageAsync(MessageWithImages message);
+
+  Task<List<MessageWithImages>> GetMessagesAfterAsync(DateTime time);
 }

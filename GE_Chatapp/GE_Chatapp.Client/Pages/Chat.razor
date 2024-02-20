@@ -113,11 +113,6 @@
 
         Console.WriteLine($"Here is the hub url {SignalRENV.chatHubURL}");
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
-        {
-            Console.WriteLine("connected to hub");
-        });
-
         hubConnection.On<string>("ReceiveStartTyping", (user) =>
         {
             if (typingUsers.ContainsKey(user))
@@ -137,6 +132,13 @@
             {
                 typingUsers[user] = false;
             }
+            StateHasChanged();
+        });
+
+        hubConnection.On<DateTime>("ReceiveUpdateMessages", async (time) =>
+        {
+            var newMessages = await ChatService.GetMessagesAfterAsync(time);
+            chatMessages.AddRange(newMessages);
             StateHasChanged();
         });
 
@@ -189,6 +191,7 @@
     }
     public bool IsConnected =>
         hubConnection?.State == HubConnectionState.Connected;
+
     public async Task SendMessage()
     {
         Console.WriteLine("Sending message");
@@ -199,7 +202,10 @@
             await ChatService.SendMessageAsync(chatMessage);
             Message = ""; // Clear the message field after sending
             dataURIs.Clear();
-            await OnInitializedAsync();
+        }
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("UpdateMessages", DateTime.Now);
         }
     }
 
