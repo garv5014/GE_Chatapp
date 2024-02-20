@@ -26,6 +26,20 @@ public class ChatService : IChatService
     var messages = await _httpClient.GetFromJsonAsync<List<Message>>("/api/chat") ?? throw new Exception("No data returned from the api");
     // for each message, get the images for the message
     var messagesWithImages = new List<MessageWithImages>();
+    await getImagesForMessages(messages, messagesWithImages);
+    return messagesWithImages;
+  }
+
+  public async Task<List<MessageWithImages>> GetMessagesAfterAsync(DateTime time)
+  {
+    var messages = await _httpClient.GetFromJsonAsync<List<Message>>($"/api/chat/messagesAfter?dateAfter={time}") ?? throw new Exception("No data returned from the api");
+    // for each message, get the images for the message
+    var messagesWithImages = new List<MessageWithImages>();
+    await getImagesForMessages(messages, messagesWithImages);
+    return messagesWithImages;
+  }
+  private async Task getImagesForMessages(List<Message> messages, List<MessageWithImages> messagesWithImages)
+  {
     foreach (var message in messages)
     {
       var images = new List<string>();
@@ -39,7 +53,6 @@ public class ChatService : IChatService
         Images = images
       });
     }
-    return messagesWithImages;
   }
 
 }

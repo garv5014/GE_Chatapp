@@ -3,11 +3,12 @@
 using Chatapp.Shared;
 using Chatapp.Shared.Entities;
 using Chatapp.Shared.Interfaces;
+using Chatapp.Shared.Services;
 using Chatapp.Shared.Simple_Models;
 using Chatapp.Shared.Telemetry;
 
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -21,13 +22,17 @@ public class ChatController : ControllerBase
   private readonly ILogger _logger;
   private readonly IConfiguration _configuration;
   private readonly IFileAPIService _fileService;
+  private readonly HubConnection? _hubConnection;
 
-  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger, IConfiguration configuration, IFileAPIService fileService)
+  public ChatController(ChatDbContext chatDb, ILogger<ChatController> logger, IConfiguration configuration, IFileAPIService fileService, SignalREnv signalREnv)
   {
     _chatDb = chatDb;
     _logger = logger;
     _configuration = configuration;
     _fileService = fileService;
+    _hubConnection = new HubConnectionBuilder()
+    .WithUrl(signalREnv.chatHubURL)
+    .Build();
   }
 
   [HttpPost]
@@ -59,7 +64,10 @@ public class ChatController : ControllerBase
           await _fileService.PostImageToFileApi(imageRequest);
         }
       }
-
+      if (_hubConnection is not null)
+      {
+        await _hubConnection.SendAsync("UpdateMessages");
+      }
 
       DiagnosticConfig.messageCount.Add(1);
     }
@@ -92,6 +100,28 @@ public class ChatController : ControllerBase
     var messagesInOrder = messages.OrderBy(m => m.CreatedAt).ToList();
 
     _logger.LogInformation("Retrieved all messages here is the message");
+    return messagesInOrder.ToList();
+  }
+
+  [HttpGet("messagesAfter")]
+  public async Task<ActionResult<IEnumerable<Message>>> RetrieveMessagesAfterDate([FromQuery] DateTime dateAfter)
+  {
+    var messages = await _chatDb.Messages
+      .Where(m => m.CreatedAt >= dateAfter)
+      .Include(m => m.Pictures)
+      .ToListAsync();
+
+    _logger.LogInformation($"Retrieving all messages after {dateAfter}");
+
+    if (messages == null)
+    {
+      DiagnosticConfig.retrieveAllMessagesFailedCount.Add(1);
+
+      return StatusCode(500, "No Message found in database");
+    }
+
+    var messagesInOrder = messages.OrderBy(m => m.CreatedAt).ToList();
+
     return messagesInOrder.ToList();
   }
 }
