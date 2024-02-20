@@ -23,8 +23,8 @@ public class ChatHub : Hub
     await Clients.Others.SendAsync("ReceiveStopTyping", user);
   }
 
-  public async Task UpdateMessages(DateTime time)
+  public async Task UpdateMessages()
   {
-    await Clients.All.SendAsync("ReceiveUpdateMessages", time);
+    await Clients.All.SendAsync("ReceiveUpdateMessages");
   }
 }

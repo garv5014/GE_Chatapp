@@ -135,9 +135,9 @@
             StateHasChanged();
         });
 
-        hubConnection.On<DateTime>("ReceiveUpdateMessages", async (time) =>
+        hubConnection.On("ReceiveUpdateMessages", async () =>
         {
-            var newMessages = await ChatService.GetMessagesAfterAsync(time);
+            var newMessages = await ChatService.GetMessagesAfterAsync(chatMessages.Last().Message.CreatedAt);
             chatMessages.AddRange(newMessages);
             StateHasChanged();
         });
@@ -203,9 +203,10 @@
             Message = ""; // Clear the message field after sending
             dataURIs.Clear();
         }
+
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("UpdateMessages", DateTime.Now);
+            await hubConnection.SendAsync("UpdateMessages");
         }
     }
 
