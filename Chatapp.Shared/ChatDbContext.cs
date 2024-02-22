@@ -29,12 +29,17 @@ public partial class ChatDbContext : DbContext
       entity.ToTable("message");
 
       entity.Property(e => e.Id).HasColumnName("id");
+      entity.Property(e => e.Clientid).HasColumnName("clientid");
       entity.Property(e => e.CreatedAt)
               .HasDefaultValueSql("now()")
               .HasColumnType("timestamp without time zone")
               .HasColumnName("created_at");
+      entity.Property(e => e.EventCount).HasColumnName("event_count");
       entity.Property(e => e.MessageText).HasColumnName("message_text");
       entity.Property(e => e.Username).HasColumnName("username");
+      entity.Property(e => e.VectorDict)
+              .HasColumnType("jsonb")
+              .HasColumnName("vector_dict");
     });
 
     modelBuilder.Entity<Picture>(entity =>

@@ -4,7 +4,10 @@ create table message (
     id serial primary key,
     message_text text not null,
     username text not null,
-    created_at timestamp not null default now()
+    created_at timestamp not null default now(),
+    clientId text,
+    vector_dict JSONB,
+    event_count integer
 );
 
 create table picture (

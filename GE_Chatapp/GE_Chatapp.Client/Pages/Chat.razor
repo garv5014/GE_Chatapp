@@ -2,6 +2,7 @@
 @inject IChatService ChatService
 @inject NavigationManager Navigation
 @inject SignalREnv SignalRENV
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveWebAssembly
 @implements IAsyncDisposable
 @using Microsoft.AspNetCore.SignalR.Client
@@ -78,6 +79,8 @@
     public string UserName { get; set; } = "";
     public bool isDisabled => string.IsNullOrWhiteSpace(UserName);
     public Timer? typingTimer { get; set; }
+    public Guid ClientID { get; set; } 
+    public int EventCount { get; set; };
 
     Dictionary<string, bool> typingUsers { get; set; } = new Dictionary<string, bool>();
     List<MessageWithImages> chatMessages { get; set; } = new List<MessageWithImages>();
@@ -148,6 +151,23 @@
         {
             await hubConnection.SendAsync("SendMessage");
         }
+
+        // check if clientID already exists in local storage
+        if (await GetFromLocalStorage("client_id") != null)
+        {
+            ClientID = Guid.Parse(await GetFromLocalStorage("client_id"));
+
+            EventCount = int.Parse(await GetFromLocalStorage("event_count"));
+        }
+        else
+        {
+            ClientID = Guid.NewGuid();
+
+            EventCount = 0;
+
+            await SaveToLocalStorage("client_id", ClientID.ToString());
+            await SaveToLocalStorage("event_count", EventCount.ToString());
+        }
     }
 
     private async Task stopTyping()
@@ -217,5 +237,20 @@
         await file.OpenReadStream().CopyToAsync(memoryStream);
         var base64String = Convert.ToBase64String(memoryStream.ToArray());
         return $"data:{format};base64,{base64String}";
+    }
+
+    private async Task SaveToLocalStorage(string key, string value)
+    {
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", key, value);
+    }
+
+    private async Task<string> GetFromLocalStorage(string key)
+    {
+        return await JSRuntime.InvokeAsync<string>("localStorage.getItem", key);
+    }
+
+    private async Task RemoveFromLocalStorage(string key)
+    {
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
     }
 }

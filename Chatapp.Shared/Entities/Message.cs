@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Chatapp.Shared.Entities;
+﻿namespace Chatapp.Shared.Entities;
 
 public partial class Message
 {
@@ -12,6 +9,12 @@ public partial class Message
   public string Username { get; set; } = null!;
 
   public DateTime CreatedAt { get; set; }
+
+  public string? Clientid { get; set; }
+
+  public string? VectorDict { get; set; }
+
+  public int? EventCount { get; set; }
 
   public virtual ICollection<Picture> Pictures { get; set; } = new List<Picture>();
 }
