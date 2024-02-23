@@ -12,6 +12,7 @@
 @using Chatapp.Shared.Entities
 @using Chatapp.Shared.Simple_Models
 @using System.Timers
+@using System.Text.Json
 
 <h1>Chat Room</h1>
 
@@ -81,6 +82,7 @@
     public Timer? typingTimer { get; set; }
     public Guid ClientID { get; set; } 
     public int EventCount { get; set; }
+    public Dictionary<string, int> VectorClock = new Dictionary<string, int>();
 
     Dictionary<string, bool> typingUsers { get; set; } = new Dictionary<string, bool>();
     List<MessageWithImages> chatMessages { get; set; } = new List<MessageWithImages>();
@@ -107,20 +109,27 @@
     {
 
         // check if clientID already exists in local storage
-        if (await GetFromLocalStorage("client_id") != null)
+        if (await GetFromLocalStorage("client_id") != null && await GetFromLocalStorage("vector_clock") != null )
         {
             ClientID = Guid.Parse(await GetFromLocalStorage("client_id"));
 
             EventCount = int.Parse(await GetFromLocalStorage("event_count"));
+
+            string vectorClockFromStorage = await GetFromLocalStorage("vector_clock");
+            VectorClock = JsonSerializer.Deserialize<Dictionary<string, int>>(vectorClockFromStorage) ?? throw new Exception("No vector clock in local storage");
         }
         else
         {
             ClientID = Guid.NewGuid();
 
             EventCount = 0;
+            VectorClock.Add(ClientID.ToString(), EventCount);
+
+            string serializedVectorClock = JsonSerializer.Serialize(VectorClock);
 
             await SaveToLocalStorage("client_id", ClientID.ToString());
             await SaveToLocalStorage("event_count", EventCount.ToString());
+            await SaveToLocalStorage("vector_clock", serializedVectorClock);
         }
     }
 
@@ -166,6 +175,10 @@
             int messagesMax = newMessages.Max(m => m.EventCount);
             EventCount = Math.Max(messagesMax, EventCount);
             await IncrementEventCounter();
+
+            VectorClock[ClientID.ToString()] = EventCount;
+            await UpdateVectorClock(newMessages);
+            SortChatMessages();
             StateHasChanged();
         });
 
@@ -175,6 +188,7 @@
         {
             await hubConnection.SendAsync("SendMessage");
         }
+        SortChatMessages();
     }
 
     private async Task stopTyping()
@@ -225,7 +239,23 @@
 
         if ((!string.IsNullOrWhiteSpace(Message) || dataURIs.Count > 0 ) && !string.IsNullOrWhiteSpace(UserName) )
         {
-            var chatMessage = new MessageWithImages { Message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now, Clientid = ClientID.ToString(), EventCount = EventCount }, Images = dataURIs };
+            await IncrementEventCounter();
+            VectorClock[ClientID.ToString()]++;
+            string serializedVectorClock = JsonSerializer.Serialize(VectorClock);
+            await SaveToLocalStorage("vector_clock", serializedVectorClock);
+
+            var chatMessage = new MessageWithImages {
+                Message = new Message {
+                    MessageText = Message,
+                    Username = UserName,
+                    CreatedAt = DateTime.Now,
+                    Clientid = ClientID.ToString(),
+                    EventCount = EventCount,
+                    VectorDict = JsonSerializer.Serialize(VectorClock)
+                },
+                Images = dataURIs
+            };
+
             await ChatService.SendMessageAsync(chatMessage);
             Message = ""; // Clear the message field after sending
             dataURIs.Clear();
@@ -234,7 +264,6 @@
             {
                 await hubConnection.SendAsync("UpdateMessages");
             }
-            await IncrementEventCounter();
         }
         StateHasChanged();
     }
@@ -267,5 +296,71 @@
     {
         EventCount++;
         await SaveToLocalStorage("event_count", EventCount.ToString());
+    }
+
+    private async Task UpdateVectorClock(List<MessageWithImages> messages)
+    {
+        foreach (MessageWithImages message in messages)
+        {
+            if (message.Message.VectorDict is not null)
+            {
+                Dictionary<string, int> deserializedVectorClock = JsonSerializer.Deserialize<Dictionary<string, int>>(message.Message.VectorDict) ?? new Dictionary<string, int>();
+
+                foreach (var vectorKey in deserializedVectorClock.Keys)
+                {
+                    if (VectorClock.ContainsKey(vectorKey))
+                    {
+                        VectorClock[vectorKey] = Math.Max(VectorClock[vectorKey], deserializedVectorClock[vectorKey]);
+                    }
+                    else
+                    {
+                        VectorClock[vectorKey] = deserializedVectorClock[vectorKey];
+                    }
+                }
+            }
+        }
+
+        VectorClock[ClientID.ToString()]++;
+        string serializedVectorClock = JsonSerializer.Serialize(VectorClock);
+        await SaveToLocalStorage("vector_clock", serializedVectorClock);
+    }
+
+    private void SortChatMessages()
+    {
+        chatMessages = chatMessages.OrderBy(m => m, new MessageWithImagesComparer())
+        .OrderBy(m=> m.EventCount)
+        .OrderBy(m => m.ClientId)
+        .OrderBy(m => m.Message.CreatedAt)
+        .ToList();
+    }
+
+    public class MessageWithImagesComparer : IComparer<MessageWithImages>
+    {
+        public int Compare(MessageWithImages? x, MessageWithImages? y)
+        {
+            if (x == null) return y == null ? 0 : -1;
+            if (y == null) return 1;
+
+            var xClock = x?.Message.VectorDict != null ? JsonSerializer.Deserialize<Dictionary<string, int>>(x.Message.VectorDict) ?? new Dictionary<string, int>() : new Dictionary<string, int>();
+            var yClock = y?.Message.VectorDict != null ? JsonSerializer.Deserialize<Dictionary<string, int>>(y.Message.VectorDict) ?? new Dictionary<string, int>() : new Dictionary<string, int>();
+
+            bool isLess = false;
+            bool isGreater = false;
+
+            foreach (var key in xClock.Keys.Union(yClock.Keys))
+            {
+                int value1 = xClock.TryGetValue(key, out var xVal) ? xVal : 0;
+                int value2 = yClock.TryGetValue(key, out var yVal) ? yVal : 0;
+
+                if (value1 <= value2) isLess = true;
+                if (value1 > value2) isGreater = true;
+
+                if (isLess && isGreater) return 0; // Concurrent
+            }
+
+            if (isLess) return -1; 
+            if (isGreater) return 1; 
+            return 0; 
+        }
     }
 }

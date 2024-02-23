@@ -97,9 +97,8 @@ public class ChatController : ControllerBase
       return StatusCode(500, "No Message found in database");
     }
 
-    var messagesInOrder = messages.OrderBy(m => m.CreatedAt).ToList();
+    var messagesInOrder = messages.OrderByDescending(m => m.CreatedAt).ToList();
 
-    _logger.LogInformation("Retrieved all messages here is the message");
     return messagesInOrder.ToList();
   }
 
@@ -120,7 +119,7 @@ public class ChatController : ControllerBase
       return StatusCode(500, "No Message found in database");
     }
 
-    var messagesInOrder = messages.OrderBy(m => m.CreatedAt).ToList();
+    var messagesInOrder = messages.OrderByDescending(m => m.CreatedAt).ToList();
 
     return messagesInOrder.ToList();
   }
