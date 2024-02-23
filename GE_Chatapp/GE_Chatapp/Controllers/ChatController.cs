@@ -106,7 +106,7 @@ public class ChatController : ControllerBase
   public async Task<ActionResult<IEnumerable<Message>>> RetrieveMessagesAfterDate([FromQuery] DateTime dateAfter)
   {
     var messages = await _chatDb.Messages
-      .Where(m => m.CreatedAt >= dateAfter)
+      .Where(m => m.CreatedAt > dateAfter)
       .Include(m => m.Pictures)
       .ToListAsync();
 
@@ -119,7 +119,9 @@ public class ChatController : ControllerBase
       return StatusCode(500, "No Message found in database");
     }
 
-    var messagesInOrder = messages.OrderByDescending(m => m.CreatedAt).ToList();
+    var messagesInOrder = messages.Where(x => x.CreatedAt.AddTicks(-x.CreatedAt.Ticks % TimeSpan.TicksPerSecond) > dateAfter)
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToList();
 
     return messagesInOrder.ToList();
   }
