@@ -328,9 +328,9 @@
     private void SortChatMessages()
     {
         chatMessages = chatMessages.OrderBy(m => m, new MessageWithImagesComparer())
-        .OrderBy(m=> m.EventCount)
-        .OrderBy(m => m.ClientId)
-        .OrderBy(m => m.Message.CreatedAt)
+        .ThenBy(m=> m.EventCount)
+        .ThenBy(m => m.ClientId)
+        .ThenBy(m => m.Message.CreatedAt)
         .ToList();
     }
 
