@@ -61,7 +61,7 @@
 
     <div class='text-center container '>
         <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
-        <input type="text" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
+        <input type="text" @bind="Message" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
         <div class="row">
             <div class="col-9">
                 <InputFile OnChange="@LoadFiles" multiple accept=".png" class="form-control"/>
@@ -80,7 +80,7 @@
     public bool isDisabled => string.IsNullOrWhiteSpace(UserName);
     public Timer? typingTimer { get; set; }
     public Guid ClientID { get; set; } 
-    public int EventCount { get; set; };
+    public int EventCount { get; set; }
 
     Dictionary<string, bool> typingUsers { get; set; } = new Dictionary<string, bool>();
     List<MessageWithImages> chatMessages { get; set; } = new List<MessageWithImages>();
@@ -100,6 +100,27 @@
                 var fileURI = await ConvertToBase64(file);
                 dataURIs.Add(fileURI);
             }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        // check if clientID already exists in local storage
+        if (await GetFromLocalStorage("client_id") != null)
+        {
+            ClientID = Guid.Parse(await GetFromLocalStorage("client_id"));
+
+            EventCount = int.Parse(await GetFromLocalStorage("event_count"));
+        }
+        else
+        {
+            ClientID = Guid.NewGuid();
+
+            EventCount = 0;
+
+            await SaveToLocalStorage("client_id", ClientID.ToString());
+            await SaveToLocalStorage("event_count", EventCount.ToString());
         }
     }
 
@@ -142,6 +163,9 @@
         {
             var newMessages = await ChatService.GetMessagesAfterAsync(chatMessages.Last().Message.CreatedAt);
             chatMessages.AddRange(newMessages);
+            int messagesMax = newMessages.Max(m => m.EventCount);
+            EventCount = Math.Max(messagesMax, EventCount);
+            await IncrementEventCounter();
             StateHasChanged();
         });
 
@@ -150,23 +174,6 @@
         if (hubConnection is not null)
         {
             await hubConnection.SendAsync("SendMessage");
-        }
-
-        // check if clientID already exists in local storage
-        if (await GetFromLocalStorage("client_id") != null)
-        {
-            ClientID = Guid.Parse(await GetFromLocalStorage("client_id"));
-
-            EventCount = int.Parse(await GetFromLocalStorage("event_count"));
-        }
-        else
-        {
-            ClientID = Guid.NewGuid();
-
-            EventCount = 0;
-
-            await SaveToLocalStorage("client_id", ClientID.ToString());
-            await SaveToLocalStorage("event_count", EventCount.ToString());
         }
     }
 
@@ -218,16 +225,18 @@
 
         if ((!string.IsNullOrWhiteSpace(Message) || dataURIs.Count > 0 ) && !string.IsNullOrWhiteSpace(UserName) )
         {
-            var chatMessage = new MessageWithImages { Message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now }, Images = dataURIs };
+            var chatMessage = new MessageWithImages { Message = new Message { MessageText = Message, Username = UserName, CreatedAt = DateTime.Now, Clientid = ClientID.ToString(), EventCount = EventCount }, Images = dataURIs };
             await ChatService.SendMessageAsync(chatMessage);
             Message = ""; // Clear the message field after sending
             dataURIs.Clear();
-        }
 
-        if (hubConnection is not null)
-        {
-            await hubConnection.SendAsync("UpdateMessages");
+            if (hubConnection is not null)
+            {
+                await hubConnection.SendAsync("UpdateMessages");
+            }
+            await IncrementEventCounter();
         }
+        StateHasChanged();
     }
 
     public async Task<string> ConvertToBase64(IBrowserFile file)
@@ -252,5 +261,11 @@
     private async Task RemoveFromLocalStorage(string key)
     {
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+    }
+
+    private async Task IncrementEventCounter()
+    {
+        EventCount++;
+        await SaveToLocalStorage("event_count", EventCount.ToString());
     }
 }
