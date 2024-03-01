@@ -1,4 +1,4 @@
-﻿@page "/chat"
+﻿@page "/"
 @inject IChatService ChatService
 @inject NavigationManager Navigation
 @inject SignalREnv SignalRENV
@@ -16,7 +16,7 @@
 
 <h1>Chat Room</h1>
 
-<div class="d-flex flex-column container" style="height: 500px">
+<div class="d-flex flex-column flex-row-reverse container" style="height: 500px">
   <div class="overflow-scroll" style="height: 90%">
     <ul class="list-unstyled">
       @if (chatMessages == null)
