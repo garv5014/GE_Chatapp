@@ -16,7 +16,7 @@
 
 <h1>Chat Room</h1>
 
-<div class="d-flex flex-column" style="height: 500px">
+<div class="d-flex flex-column container" style="height: 500px">
   <div class="overflow-scroll" style="height: 90%">
     <ul class="list-unstyled">
       @if (chatMessages == null)
@@ -61,8 +61,8 @@
   </div>
 
     <div class='text-center container '>
-        <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
-        <input type="text" @bind="Message" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
+        <input type="text" @bind="UserName" placeholder="Your name" class="form-control pt-1 pb-1" />
+        <input type="text" @bind="Message" placeholder="Type a message" class="form-control pb-1" disabled="@isDisabled" @oninput="onMessageChange" />
         <div class="row">
             <div class="col-9">
                 <InputFile OnChange="@LoadFiles" multiple accept=".png" class="form-control"/>
