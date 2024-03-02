@@ -63,13 +63,18 @@
     <div class='text-start container '>
         <form @onsubmit=@(() => SendMessage() )>
         
-            <div class="my-1 row">
+            <div class="my-1  row">
                 <label for="Name" class="form-label">Name</label>
-                <input type="text" @bind="UserName" placeholder="Your name" class="form-control " />
+                <div class="pl-3">
+
+                    <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
+                </div>
             </div>
-            <div class="mt-2 row">
+            <div class="my-2 pl-3 row">
                 <label for="Message" class="form-label">Message</label>
-                <textarea @bind="Message" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
+                <div class="pl-3">
+                    <textarea @bind="Message" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
+                </div>
             </div>
             <div class="row mb-2">
                 <div class="col-9 pb-1">
