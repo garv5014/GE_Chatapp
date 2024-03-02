@@ -15,7 +15,7 @@
 @using System.Text.Json
 
 
-<div class="d-flex flex-column container-md" style="height: 500px">
+<div class="d-flex flex-column container-md" style="height: 700px">
 <h1>Chat Room</h1>
     <div class="overflow-scroll d-flex flex-column-reverse" style="height: 90%">
     <ul class="list-unstyled">
@@ -38,9 +38,9 @@
             {
               <div class="row">
                 @foreach ( var image in message.Images)
-                {    
-                    <img src="@image" alt="photo" class="col-auto p-3 img-fluid" />     
-                }
+                {
+                                        <img src="@image" alt="photo" class="col-auto" style="width: 250px; height: auto;" />
+                                    }
               </div>
             }
             </div>
