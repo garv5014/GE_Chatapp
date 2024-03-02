@@ -141,7 +141,7 @@ public partial class Program
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode()
         .AddInteractiveWebAssemblyRenderMode()
-        .AddAdditionalAssemblies(typeof(Counter).Assembly);
+        .AddAdditionalAssemblies(typeof(Chat).Assembly);
 
     app.MapControllers();
 

@@ -1,4 +1,4 @@
-﻿@page "/chat"
+﻿@page "/"
 @inject IChatService ChatService
 @inject NavigationManager Navigation
 @inject SignalREnv SignalRENV
@@ -14,10 +14,10 @@
 @using System.Timers
 @using System.Text.Json
 
-<h1>Chat Room</h1>
 
-<div class="d-flex flex-column" style="height: 500px">
-  <div class="overflow-scroll" style="height: 90%">
+<div class="d-flex flex-column container-md" style="height: 700px">
+<h1>Chat Room</h1>
+    <div class="overflow-scroll d-flex flex-column-reverse" style="height: 90%">
     <ul class="list-unstyled">
       @if (chatMessages == null)
       {
@@ -38,9 +38,9 @@
             {
               <div class="row">
                 @foreach ( var image in message.Images)
-                {    
-                    <img src="@image" alt="photo" class="col-auto p-3 img-fluid" />     
-                }
+                {
+                                        <img src="@image" alt="photo" class="col-auto" style="width: 250px; height: auto;" />
+                                    }
               </div>
             }
             </div>
@@ -60,17 +60,31 @@
     </ul>
   </div>
 
-    <div class='text-center container '>
-        <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
-        <input type="text" @bind="Message" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
-        <div class="row">
-            <div class="col-9">
-                <InputFile OnChange="@LoadFiles" multiple accept=".png" class="form-control"/>
+    <div class='text-start container '>
+        <form @onsubmit=@(() => SendMessage() )>
+        
+            <div class="my-1  row">
+                <label for="Name" class="form-label">Name</label>
+                <div class="pl-3">
+
+                    <input type="text" @bind="UserName" placeholder="Your name" class="form-control" />
+                </div>
             </div>
-            <div class="col-3">
-                <button @onclick=@(() => SendMessage() ) class="btn btn-primary">Send</button>
+            <div class="my-2 pl-3 row">
+                <label for="Message" class="form-label">Message</label>
+                <div class="pl-3">
+                    <textarea @bind="Message" placeholder="Type a message" class="form-control" disabled="@isDisabled" @oninput="onMessageChange" />
+                </div>
             </div>
-        </div>
+            <div class="row mb-2">
+                <div class="col-9 pb-1">
+                    <InputFile OnChange="@LoadFiles" multiple accept=".png" class="form-control"/>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-primary type="submit">Send</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
