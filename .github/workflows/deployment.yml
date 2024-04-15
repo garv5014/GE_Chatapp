@@ -23,7 +23,6 @@ jobs:
     uses: ./.github/workflows/unit-test.yml
   
   integration-tests: 
-    needs: format
     uses: ./.github/workflows/integration-test.yml
 
   deploy:
